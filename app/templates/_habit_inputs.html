@@ -1,0 +1,28 @@
+<div class="habit-rows">
+{% for h in habits_to_render %}
+    <div class="habit-input{% if h.entry and h.entry.done %} done{% endif %}">
+        {% if h.type == 'binary' %}
+            <input type="checkbox" id="habit_{{ h.id }}" name="habit_{{ h.id }}" value="1"
+                   {% if h.entry and h.entry.value.checked %}checked{% endif %}>
+            <label for="habit_{{ h.id }}" class="habit-label">{{ h.name }}</label>
+        {% elif h.type == 'time' %}
+            <span class="habit-label">{{ h.name }}</span>
+            <input type="time" name="habit_{{ h.id }}"
+                   value="{{ h.entry.value.time if h.entry and h.entry.value.time else '' }}">
+            <span class="habit-hint">{{ h.threshold.direction }} {{ h.threshold.target }}</span>
+        {% elif h.type == 'quantity' %}
+            <span class="habit-label">{{ h.name }}</span>
+            <fieldset class="bucket">
+                {% for label in h.threshold.bucket_labels %}
+                <label>
+                    <input type="radio" name="habit_{{ h.id }}" value="{{ loop.index0 }}"
+                           {% if h.entry and h.entry.value.bucket == loop.index0 %}checked{% endif %}>
+                    <span>{{ label }}</span>
+                </label>
+                {% endfor %}
+            </fieldset>
+            <span class="habit-hint">done ≥ {{ h.threshold.bucket_labels[h.threshold.min_done_bucket] }}</span>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}health_app{% endblock %}</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/htmx.min.js" defer></script>
+    <script src="/static/alpine.min.js" defer></script>
+</head>
+<body>
+    <div class="layout">
+        <nav class="topnav">
+            <a href="/" class="brand">health_app</a>
+            <a href="/">Hub</a>
+            <a href="/habits">Habits</a>
+            <a href="/trigger">Trigger</a>
+            <a href="/weekly">Weekly</a>
+        </nav>
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

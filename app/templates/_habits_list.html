@@ -1,0 +1,74 @@
+{% for pillar in pillars %}
+<section class="pillar">
+    <h2>{{ pillar }}</h2>
+    {% if active_by_pillar[pillar] %}
+    <ul class="habit-list">
+        {% for h in active_by_pillar[pillar] %}
+        <li class="habit-row" x-data="{editing: false}">
+            <div class="habit-main" x-show="!editing">
+                <span class="habit-name">{{ h.name }}</span>
+                <span class="habit-meta muted">
+                    {{ h.type }}{% if h.type == 'time' %} · {{ h.threshold.direction }} {{ h.threshold.target }}{% elif h.type == 'quantity' %} · {{ h.threshold.bucket_labels | join(' / ') }} (done ≥ #{{ h.threshold.min_done_bucket }}){% endif %}
+                </span>
+                <span class="habit-actions">
+                    <button type="button" @click="editing = true">Rename</button>
+                    <button type="button"
+                            hx-post="/habits/{{ h.id }}/archive"
+                            hx-target="#habits-content"
+                            hx-swap="innerHTML"
+                            hx-confirm="Archive '{{ h.name }}'?">Archive</button>
+                </span>
+            </div>
+            <form class="habit-edit" x-show="editing" x-cloak
+                  hx-post="/habits/{{ h.id }}/rename"
+                  hx-target="#habits-content"
+                  hx-swap="innerHTML">
+                <input type="text" name="name" value="{{ h.name }}" required maxlength="120">
+                <button type="submit" class="primary">Save</button>
+                <button type="button" @click="editing = false">Cancel</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No active habits in this pillar.</p>
+    {% endif %}
+</section>
+{% endfor %}
+
+{% if archived %}
+<section class="pillar archived" x-data="{open: false}">
+    <h2 @click="open = !open" style="cursor: pointer;">
+        Archived ({{ archived | length }}) <span class="muted" x-text="open ? '▾' : '▸'"></span>
+    </h2>
+    <ul class="habit-list" x-show="open" x-cloak>
+        {% for h in archived %}
+        <li class="habit-row archived-row">
+            <span class="habit-name">{{ h.name }}</span>
+            <span class="habit-meta muted">{{ h.pillar }} · {{ h.type }}</span>
+            <button type="button"
+                    hx-post="/habits/{{ h.id }}/unarchive"
+                    hx-target="#habits-content"
+                    hx-swap="innerHTML">Restore</button>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<style>
+    [x-cloak] { display: none !important; }
+    .pillar { margin-bottom: 1.25rem; }
+    .pillar h2 { text-transform: capitalize; }
+    .habit-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .habit-row { background: #fff; border: 1px solid #e5e2d8; border-radius: 6px; padding: 0.6rem 0.75rem; }
+    .habit-main { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .habit-name { font-weight: 500; }
+    .habit-meta { font-size: 0.85rem; }
+    .habit-actions { margin-left: auto; display: flex; gap: 0.4rem; }
+    .habit-actions button { background: transparent; border: 1px solid #d4cfbf; padding: 0.25rem 0.55rem; border-radius: 4px; font-size: 0.85rem; }
+    .habit-actions button:hover { background: #f0ece1; }
+    .habit-edit { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+    .habit-edit input { flex: 1; min-width: 200px; padding: 0.35rem 0.5rem; border: 1px solid #d4cfbf; border-radius: 4px; }
+    .archived-row { display: flex; align-items: center; gap: 0.75rem; opacity: 0.7; }
+</style>

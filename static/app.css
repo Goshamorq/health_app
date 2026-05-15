@@ -1,0 +1,43 @@
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html, body { height: 100%; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5;
+    color: #1a1a1a;
+    background: #fafaf7;
+}
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+.layout { max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+nav.topnav {
+    display: flex;
+    gap: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e2d8;
+    margin-bottom: 1.5rem;
+}
+nav.topnav a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+}
+nav.topnav a:hover { color: #1a1a1a; }
+nav.topnav a.brand { font-weight: 700; color: #1a1a1a; margin-right: auto; }
+
+h1 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+h2 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }
+
+button.primary {
+    background: #2e6f4f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 0.9rem;
+}
+button.primary:hover { background: #245a40; }
+
+.muted { color: #888; font-size: 0.9rem; }
