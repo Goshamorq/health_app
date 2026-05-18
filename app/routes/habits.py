@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
+from app.scoring import STEPS_BUCKETS, WATER_BUCKETS
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
@@ -64,6 +65,17 @@ def _render_list(request: Request) -> HTMLResponse:
 @router.get("/habits", response_class=HTMLResponse)
 def list_habits(request: Request) -> HTMLResponse:
     ctx = _load_habits()
+    with connect() as conn:
+        settings_rows = conn.execute("SELECT key, value FROM settings").fetchall()
+    s = {r["key"]: r["value"] for r in settings_rows}
+    ctx["sleep_min_hours"] = s.get("sleep_min_hours", "")
+    ctx["sleep_max_hours"] = s.get("sleep_max_hours", "")
+    ctx["steps_min_bucket"] = s.get("steps_min_bucket", "")
+    ctx["water_min_bucket"] = s.get("water_min_bucket", "")
+    ctx["meals_min_count"] = s.get("meals_min_count", "")
+    ctx["steps_buckets"] = STEPS_BUCKETS
+    ctx["water_buckets"] = WATER_BUCKETS
+    ctx["thresholds_saved"] = request.query_params.get("thresholds_saved") == "1"
     return templates.TemplateResponse(request, "habits.html", ctx)
 
 

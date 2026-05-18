@@ -75,17 +75,7 @@ def _load_hub_context(target_date: str) -> dict:
 @router.get("/checkin", response_class=HTMLResponse)
 def checkin_get(request: Request, date: str | None = None) -> HTMLResponse:
     target_date = _parse_date(date)
-    ctx = _load_hub_context(target_date)
-    with connect() as conn:
-        settings_rows = conn.execute("SELECT key, value FROM settings").fetchall()
-    s = {r["key"]: r["value"] for r in settings_rows}
-    ctx["sleep_min_hours"] = s.get("sleep_min_hours", "")
-    ctx["sleep_max_hours"] = s.get("sleep_max_hours", "")
-    ctx["steps_min_bucket"] = s.get("steps_min_bucket", "")
-    ctx["water_min_bucket"] = s.get("water_min_bucket", "")
-    ctx["meals_min_count"] = s.get("meals_min_count", "")
-    ctx["thresholds_saved"] = request.query_params.get("thresholds_saved") == "1"
-    return templates.TemplateResponse(request, "checkin.html", ctx)
+    return templates.TemplateResponse(request, "checkin.html", _load_hub_context(target_date))
 
 
 def _int_or_none(s: str | None) -> int | None:

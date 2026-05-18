@@ -82,14 +82,10 @@ async def thresholds_post(request: Request):
     meals_min = "" if raw_meals in (None, "") else str(
         _parse_int_clamp(raw_meals, 0, 20, 0))
 
-    date = form.get("date") or ""
     with connect() as conn:
         _upsert(conn, "sleep_min_hours", sleep_min)
         _upsert(conn, "sleep_max_hours", sleep_max)
         _upsert(conn, "steps_min_bucket", steps_min)
         _upsert(conn, "water_min_bucket", water_min)
         _upsert(conn, "meals_min_count", meals_min)
-    redirect = "/checkin?thresholds_saved=1"
-    if date:
-        redirect = f"/checkin?date={date}&thresholds_saved=1"
-    return RedirectResponse(redirect, status_code=303)
+    return RedirectResponse("/habits?thresholds_saved=1", status_code=303)
