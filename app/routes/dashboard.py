@@ -33,7 +33,9 @@ def dashboard(request: Request) -> HTMLResponse:
     yesterday_iso = yesterday.isoformat()
 
     with connect() as conn:
-        score = daily_score(conn, today_iso)
+        settings = {r["key"]: r["value"]
+                    for r in conn.execute("SELECT key, value FROM settings").fetchall()}
+        score = daily_score(conn, today_iso, settings)
         has_today_checkin = conn.execute(
             "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (today_iso,)
         ).fetchone()[0]
@@ -48,7 +50,7 @@ def dashboard(request: Request) -> HTMLResponse:
         for offset in range(6, -1, -1):
             d = today - timedelta(days=offset)
             d_iso = d.isoformat()
-            s = daily_score(conn, d_iso)
+            s = daily_score(conn, d_iso, settings)
             week.append({
                 "date": d_iso,
                 "weekday": WEEKDAY_SHORT[d.weekday()],

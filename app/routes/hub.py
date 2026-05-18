@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
 router = APIRouter()
 
-PILLARS = ("sleep", "sport", "food")
+PILLARS = ("sleep", "sport", "food", "other")
 WATER_BUCKETS = ("low", "mid", "good")
 STEPS_BUCKETS = ("<5k", "5-7k", "7-10k", "10-15k", "15k+")
 RATING_VALUES = (1, 2, 3, 4, 5)
@@ -114,7 +114,6 @@ async def save_checkin(request: Request):
     target_date = _parse_date(form.get("date"))
 
     sleep_hours = _float_or_none(form.get("sleep_hours"))
-    sleep_quality = _int_or_none(form.get("sleep_quality"))
     mood_am = _int_or_none(form.get("mood_am"))
     mood_pm = _int_or_none(form.get("mood_pm"))
     water = _bucket_or_none(form.get("water_bucket"), WATER_BUCKETS)
@@ -124,17 +123,17 @@ async def save_checkin(request: Request):
     late_meal = 1 if form.get("late_meal") else 0
     food_text = _text_or_none(form.get("food_text"))
     note_text = _text_or_none(form.get("note_text"))
+    meals_count = _int_or_none(form.get("meals_count"))
 
     with connect() as conn:
         conn.execute(
             """INSERT INTO checkins
-                (date, sleep_hours, sleep_quality, mood_am, mood_pm,
+                (date, sleep_hours, mood_am, mood_pm,
                  water_bucket, steps_bucket, caffeine, alcohol, late_meal,
-                 food_text, note_text, updated_at)
+                 food_text, note_text, meals_count, updated_at)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
                ON CONFLICT(date) DO UPDATE SET
                  sleep_hours = excluded.sleep_hours,
-                 sleep_quality = excluded.sleep_quality,
                  mood_am = excluded.mood_am,
                  mood_pm = excluded.mood_pm,
                  water_bucket = excluded.water_bucket,
@@ -144,9 +143,11 @@ async def save_checkin(request: Request):
                  late_meal = excluded.late_meal,
                  food_text = excluded.food_text,
                  note_text = excluded.note_text,
+                 meals_count = excluded.meals_count,
                  updated_at = datetime('now')""",
-            (target_date, sleep_hours, sleep_quality, mood_am, mood_pm,
-             water, steps, caffeine, alcohol, late_meal, food_text, note_text),
+            (target_date, sleep_hours, mood_am, mood_pm,
+             water, steps, caffeine, alcohol, late_meal,
+             food_text, note_text, meals_count),
         )
 
         habits = conn.execute(
@@ -183,13 +184,12 @@ async def copy_previous(request: Request):
         prev_date = prev["date"]
         conn.execute(
             """INSERT INTO checkins
-                (date, sleep_hours, sleep_quality, mood_am, mood_pm,
+                (date, sleep_hours, mood_am, mood_pm,
                  water_bucket, steps_bucket, caffeine, alcohol, late_meal,
-                 food_text, note_text, updated_at)
+                 food_text, note_text, meals_count, updated_at)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
                ON CONFLICT(date) DO UPDATE SET
                  sleep_hours = excluded.sleep_hours,
-                 sleep_quality = excluded.sleep_quality,
                  mood_am = excluded.mood_am,
                  mood_pm = excluded.mood_pm,
                  water_bucket = excluded.water_bucket,
@@ -199,11 +199,12 @@ async def copy_previous(request: Request):
                  late_meal = excluded.late_meal,
                  food_text = excluded.food_text,
                  note_text = excluded.note_text,
+                 meals_count = excluded.meals_count,
                  updated_at = datetime('now')""",
-            (target_date, prev["sleep_hours"], prev["sleep_quality"], prev["mood_am"],
+            (target_date, prev["sleep_hours"], prev["mood_am"],
              prev["mood_pm"], prev["water_bucket"], prev["steps_bucket"],
              prev["caffeine"], prev["alcohol"], prev["late_meal"],
-             prev["food_text"], prev["note_text"]),
+             prev["food_text"], prev["note_text"], prev["meals_count"]),
         )
         conn.execute(
             """INSERT INTO habit_entries (checkin_date, habit_id, value_json, done)

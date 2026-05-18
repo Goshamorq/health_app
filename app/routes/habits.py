@@ -12,7 +12,7 @@ templates = Jinja2Templates(directory=ROOT / "app" / "templates")
 
 router = APIRouter()
 
-PILLARS = ("sleep", "sport", "food")
+PILLARS = ("sleep", "sport", "food", "other")
 HABIT_TYPES = ("binary", "time", "quantity")
 
 
