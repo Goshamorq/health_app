@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — health_app{% endblock %}
+
+{% block content %}
+<h1>Settings</h1>
+
+{% if saved %}
+<section class="block" style="border-left: 3px solid var(--accent); margin-top: 16px;">
+    <p>Saved.</p>
+</section>
+{% endif %}
+
+<section class="block settings-section" style="margin-top: 16px;">
+    <h2>Streaks</h2>
+    <p>A streak counts consecutive days a habit was done. With forgiveness on,
+       a small number of missed days within any 7-day window won't reset the streak.
+       Streak logic itself is implemented in Task 8 — this setting only stores the preference.</p>
+    <form method="post" action="/settings" x-data="{enabled: {{ 'true' if forgiveness_enabled else 'false' }}}">
+        <div class="field-row">
+            <label class="flag">
+                <input type="checkbox" name="streak_forgiveness_enabled" value="1"
+                       x-model="enabled"
+                       {% if forgiveness_enabled %}checked{% endif %}>
+                Enable forgiveness
+            </label>
+        </div>
+        <div class="field-row">
+            <label class="field" style="max-width: 320px;">
+                Allowed misses per 7-day window
+                <input type="number" name="streak_forgiveness_threshold"
+                       min="0" max="7"
+                       value="{{ forgiveness_threshold }}"
+                       :disabled="!enabled"
+                       :style="!enabled ? 'opacity: 0.5;' : ''">
+            </label>
+        </div>
+        <button type="submit" class="primary" style="margin-top: 4px;">Save</button>
+    </form>
+</section>
+
+<section class="block settings-section" style="margin-top: 16px;">
+    <h2>About</h2>
+    <p>health_app — local gamified health tracker for one user, running on macOS. Three pillars (sleep / sport / food), daily check-in, dashboard with score and trends.</p>
+    <p>Repository:
+       <a href="https://github.com/Goshamorq/health_app" target="_blank" rel="noreferrer noopener" style="color: var(--accent); text-decoration: none;">
+           github.com/Goshamorq/health_app
+       </a>
+    </p>
+</section>
+{% endblock %}

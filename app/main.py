@@ -8,6 +8,7 @@ from app.db import apply_migrations
 from app.routes import dashboard as dashboard_routes
 from app.routes import habits as habits_routes
 from app.routes import hub as hub_routes
+from app.routes import settings as settings_routes
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -23,3 +24,4 @@ app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.include_router(dashboard_routes.router)
 app.include_router(hub_routes.router)
 app.include_router(habits_routes.router)
+app.include_router(settings_routes.router)
