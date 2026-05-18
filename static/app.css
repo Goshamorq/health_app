@@ -531,17 +531,33 @@ fieldset legend {
     justify-content: space-between;
     align-items: end;
 }
+.week-day-link {
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 120ms ease;
+}
+.week-day-link:hover { transform: translateY(-2px); }
 .week-day {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    flex: 1;
+    gap: 4px;
     font-size: 11px;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
+.week-stars {
+    display: flex;
+    gap: 1px;
+    font-size: 9px;
+    line-height: 1;
+    color: var(--border);
+    height: 11px;
+    align-items: center;
+}
+.week-stars .ministar.filled { color: var(--warn); }
 .week-dot {
     width: 28px;
     height: 28px;
@@ -558,7 +574,7 @@ fieldset legend {
 .week-dot.is-good { background: var(--accent); border-color: var(--accent); color: #fff; }
 .week-dot.is-mid { background: var(--warn); border-color: var(--warn); color: #fff; }
 .week-dot.is-bad { background: var(--bad); border-color: var(--bad); color: #fff; }
-.week-dot.is-today {
+.week-dot.is-viewed {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
@@ -566,6 +582,40 @@ fieldset legend {
 .placeholder-card {
     color: var(--muted);
     font-style: italic;
+}
+
+/* === Threshold toggle (on /checkin) === */
+.threshold-toggle { margin-top: 24px; }
+.threshold-toggle > summary {
+    cursor: pointer;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--muted);
+    user-select: none;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.threshold-toggle > summary::-webkit-details-marker { display: none; }
+.threshold-toggle > summary::marker { content: ""; }
+.threshold-toggle > summary::before { content: "▸"; font-size: 10px; }
+.threshold-toggle[open] > summary::before { content: "▾"; }
+.threshold-toggle > summary:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+.threshold-subhead {
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
 }
 
 /* === Settings === */

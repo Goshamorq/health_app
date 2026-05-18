@@ -11,13 +11,12 @@
 </section>
 {% endif %}
 
-<form method="post" action="/settings" x-data="{forgiveness_enabled: {{ 'true' if forgiveness_enabled else 'false' }}}">
-
-    <section class="block settings-section" style="margin-top: 16px;">
-        <h2>Streaks</h2>
-        <p>A streak counts consecutive days a habit was done. With forgiveness on,
-           a small number of missed days within any 7-day window won't reset the streak.
-           Streak logic itself is implemented in Task 8 — this setting only stores the preference.</p>
+<section class="block settings-section" style="margin-top: 16px;" x-data="{forgiveness_enabled: {{ 'true' if forgiveness_enabled else 'false' }}}">
+    <h2>Streaks</h2>
+    <p>A streak counts consecutive days a habit was done. With forgiveness on,
+       a small number of missed days within any 7-day window won't reset the streak.
+       Streak logic itself is implemented in Task 8 — this setting only stores the preference.</p>
+    <form method="post" action="/settings">
         <div class="field-row">
             <label class="flag">
                 <input type="checkbox" name="streak_forgiveness_enabled" value="1"
@@ -36,64 +35,16 @@
                        :style="!forgiveness_enabled ? 'opacity: 0.5;' : ''">
             </label>
         </div>
-    </section>
+        <button type="submit" class="primary" style="margin-top: 4px;">Save</button>
+    </form>
+</section>
 
-    <section class="block settings-section" style="margin-top: 16px;">
-        <h2>Pillar score thresholds</h2>
-        <p>Each pillar's score combines the global signals below with active habits.
-           Leave a field blank to disable that signal (it won't add a slot to the pillar score).</p>
-
-        <h3 style="margin-top: 16px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);">Sleep</h3>
-        <p>Sleep hours in this range count as one met signal for the Sleep pillar.</p>
-        <div class="field-row" style="gap: 12px;">
-            <label class="field" style="max-width: 140px;">
-                From (hours)
-                <input type="number" name="sleep_min_hours" min="0" max="14" step="0.5"
-                       value="{{ sleep_min_hours }}">
-            </label>
-            <label class="field" style="max-width: 140px;">
-                To (hours)
-                <input type="number" name="sleep_max_hours" min="0" max="14" step="0.5"
-                       value="{{ sleep_max_hours }}">
-            </label>
-        </div>
-
-        <h3 style="margin-top: 16px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);">Sport</h3>
-        <p>Steps at the selected bucket or higher count as one met signal for the Sport pillar.</p>
-        <div class="field-row">
-            <label class="field" style="max-width: 240px;">
-                Minimum steps bucket
-                <select name="steps_min_bucket">
-                    <option value="" {% if steps_min_bucket == "" %}selected{% endif %}>(disabled)</option>
-                    {% for b in steps_buckets %}
-                    <option value="{{ loop.index0 }}" {% if steps_min_bucket == loop.index0|string %}selected{% endif %}>{{ b }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-        </div>
-
-        <h3 style="margin-top: 16px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);">Food</h3>
-        <p>Water at the selected level or higher counts as one signal; meals at or above the threshold count as another.</p>
-        <div class="field-row" style="gap: 12px; flex-wrap: wrap;">
-            <label class="field" style="max-width: 200px;">
-                Minimum water level
-                <select name="water_min_bucket">
-                    <option value="" {% if water_min_bucket == "" %}selected{% endif %}>(disabled)</option>
-                    {% for b in water_buckets %}
-                    <option value="{{ loop.index0 }}" {% if water_min_bucket == loop.index0|string %}selected{% endif %}>{{ b }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="field" style="max-width: 200px;">
-                Minimum proper meals
-                <input type="number" name="meals_min_count" min="0" max="10" step="1"
-                       value="{{ meals_min_count }}">
-            </label>
-        </div>
-    </section>
-
-    <button type="submit" class="primary" style="margin-top: 16px;">Save</button>
-</form>
+<section class="block settings-section" style="margin-top: 16px;">
+    <h2>Pillar score thresholds</h2>
+    <p>Pillar score thresholds (sleep range, steps / water buckets, meals minimum)
+       live on the <a href="/checkin" style="color: var(--accent); text-decoration: none;">Check-in tab</a>
+       so you can tune them next to the data you're logging.</p>
+</section>
 
 <section class="block settings-section" style="margin-top: 16px;">
     <h2>About</h2>

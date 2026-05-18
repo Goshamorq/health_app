@@ -176,14 +176,14 @@ def test_steps_signal_below_threshold(conn):
 
 
 def test_food_two_signals_both_met(conn):
-    _set_checkin(conn, "2026-05-15", water_bucket="good", meals_count=4)
+    _set_checkin(conn, "2026-05-15", water_bucket="2+", meals_count=4)
     result = daily_score(conn, "2026-05-15", SETTINGS_FULL)
     # 2 signals met / 2 slots = 100%
     assert result["by_pillar"]["food"] == 100
 
 
 def test_food_two_signals_one_met(conn):
-    _set_checkin(conn, "2026-05-15", water_bucket="good", meals_count=1)
+    _set_checkin(conn, "2026-05-15", water_bucket="2+", meals_count=1)
     result = daily_score(conn, "2026-05-15", SETTINGS_FULL)
     # 1 of 2 = 50%
     assert result["by_pillar"]["food"] == 50

@@ -26,19 +26,27 @@ def _score_band(score: int) -> str:
 
 
 @router.get("/", response_class=HTMLResponse)
-def dashboard(request: Request) -> HTMLResponse:
+def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
     today = date_cls.today()
     today_iso = today.isoformat()
-    yesterday = today - timedelta(days=1)
-    yesterday_iso = yesterday.isoformat()
+    yesterday_iso = (today - timedelta(days=1)).isoformat()
+
+    if date:
+        try:
+            target_date = date_cls.fromisoformat(date).isoformat()
+        except ValueError:
+            target_date = today_iso
+    else:
+        target_date = today_iso
+    is_today = target_date == today_iso
 
     with connect() as conn:
         settings = {r["key"]: r["value"]
                     for r in conn.execute("SELECT key, value FROM settings").fetchall()}
-        score = daily_score(conn, today_iso, settings)
-        other = other_score(conn, today_iso)
-        has_today_checkin = conn.execute(
-            "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (today_iso,)
+        score = daily_score(conn, target_date, settings)
+        other = other_score(conn, target_date)
+        has_target_checkin = conn.execute(
+            "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (target_date,)
         ).fetchone()[0]
         has_yesterday_checkin = conn.execute(
             "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (yesterday_iso,)
@@ -52,23 +60,32 @@ def dashboard(request: Request) -> HTMLResponse:
             d = today - timedelta(days=offset)
             d_iso = d.isoformat()
             s = daily_score(conn, d_iso, settings)
+            o = other_score(conn, d_iso)
             week.append({
                 "date": d_iso,
                 "weekday": WEEKDAY_SHORT[d.weekday()],
                 "score": s["total"],
                 "band": _score_band(s["total"]),
-                "is_today": offset == 0,
+                "is_viewed": d_iso == target_date,
+                "other_stars": o["stars"],
+                "other_active": o["active"],
             })
 
-    show_yesterday_prompt = bool(has_prior_to_yesterday) and not bool(has_yesterday_checkin)
+    show_yesterday_prompt = (
+        is_today
+        and bool(has_prior_to_yesterday)
+        and not bool(has_yesterday_checkin)
+    )
 
     return templates.TemplateResponse(request, "dashboard.html", {
         "score": score,
         "score_band": _score_band(score["total"]),
         "other": other,
-        "has_today_checkin": bool(has_today_checkin),
+        "is_today": is_today,
+        "target_date": target_date,
         "today_iso": today_iso,
         "yesterday_iso": yesterday_iso,
+        "has_target_checkin": bool(has_target_checkin),
         "show_yesterday_prompt": show_yesterday_prompt,
         "week": week,
     })

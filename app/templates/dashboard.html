@@ -7,7 +7,9 @@
 
 <div class="dashboard">
     <section class="block score-hero">
-        <span class="label-eyebrow">Today's score</span>
+        <span class="label-eyebrow">
+            {% if is_today %}Today's score{% else %}{{ target_date }}{% endif %}
+        </span>
         {% if other.active > 0 %}
         <div class="score-stars" title="Other pillar: {{ other.pct }}%">
             {% for i in range(3) %}
@@ -22,12 +24,17 @@
             <span>Food <span class="score-pillar-value">{{ score.by_pillar.food }}%</span></span>
         </div>
         <div class="score-actions">
-            {% if has_today_checkin %}
-                <a href="/checkin" class="dashboard-cta">Edit today →</a>
+            {% if is_today %}
+                {% if has_target_checkin %}
+                    <a href="/checkin" class="dashboard-cta">Edit today →</a>
+                {% else %}
+                    <a href="/checkin" class="dashboard-cta">Log today →</a>
+                {% endif %}
+                <a href="/checkin?date={{ yesterday_iso }}" class="dashboard-cta secondary">Edit yesterday</a>
             {% else %}
-                <a href="/checkin" class="dashboard-cta">Log today →</a>
+                <a href="/checkin?date={{ target_date }}" class="dashboard-cta">Edit {{ target_date }} →</a>
+                <a href="/" class="dashboard-cta secondary">Back to today</a>
             {% endif %}
-            <a href="/checkin?date={{ yesterday_iso }}" class="dashboard-cta secondary">Edit yesterday</a>
         </div>
     </section>
 
@@ -46,11 +53,17 @@
         <span class="label-eyebrow">Last 7 days</span>
         <div class="week-strip" style="margin-top: 12px;">
             {% for day in week %}
-            <div class="week-day">
-                <div class="week-dot {{ day.band }}{% if day.is_today %} is-today{% endif %}"
-                     title="{{ day.date }} — score {{ day.score }}">{{ day.score }}</div>
-                <span>{{ day.weekday }}</span>
-            </div>
+            <a href="/?date={{ day.date }}" class="week-day-link" title="{{ day.date }} — score {{ day.score }}">
+                <div class="week-day">
+                    <div class="week-stars">
+                        {% if day.other_active > 0 %}
+                            {% for i in range(3) %}<span class="ministar{% if i < day.other_stars %} filled{% endif %}">★</span>{% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="week-dot {{ day.band }}{% if day.is_viewed %} is-viewed{% endif %}">{{ day.score }}</div>
+                    <span>{{ day.weekday }}</span>
+                </div>
+            </a>
             {% endfor %}
         </div>
     </section>
