@@ -68,9 +68,22 @@
         </div>
     </section>
 
-    <section class="block placeholder-card">
-        <span class="label-eyebrow">Heatmap</span>
-        <p style="margin-top:8px;">Coming with Task 9 — 30-day pillar heatmap.</p>
+    <section class="block">
+        <span class="label-eyebrow">30-day heatmap</span>
+        <div class="heatmap">
+            {% for row in heatmap_rows %}
+            <div class="heatmap-row">
+                <span class="heatmap-label">{{ row.pillar }}</span>
+                <div class="heatmap-cells">
+                    {% for cell in row.cells %}
+                    <a href="/?date={{ cell.date }}"
+                       class="heatmap-cell level-{{ cell.level }}{% if cell.is_viewed %} is-viewed{% endif %}"
+                       title="{{ cell.date }}: {{ row.pillar }} {{ cell.pct }}%"></a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </section>
 
     <section class="block">

@@ -25,6 +25,16 @@ def _score_band(score: int) -> str:
     return "is-empty"
 
 
+def _heatmap_level(pct: int) -> int:
+    if pct == 0:
+        return 0
+    if pct <= 33:
+        return 1
+    if pct <= 66:
+        return 2
+    return 3
+
+
 @router.get("/", response_class=HTMLResponse)
 def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
     today = date_cls.today()
@@ -73,6 +83,27 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
                 "other_active": o["active"],
             })
 
+        # 30-day heatmap: 4 pillar rows × 30 day cells
+        heatmap_by_date = []
+        for offset in range(29, -1, -1):
+            d = today - timedelta(days=offset)
+            d_iso = d.isoformat()
+            s = daily_score(conn, d_iso, settings)
+            o = other_score(conn, d_iso)
+            heatmap_by_date.append({
+                "date": d_iso,
+                "by_pillar": {**s["by_pillar"], "other": o["pct"]},
+            })
+        heatmap_rows = []
+        for pillar in ("sleep", "sport", "food", "other"):
+            cells = [{
+                "date": day["date"],
+                "pct": day["by_pillar"][pillar],
+                "level": _heatmap_level(day["by_pillar"][pillar]),
+                "is_viewed": day["date"] == target_date,
+            } for day in heatmap_by_date]
+            heatmap_rows.append({"pillar": pillar, "cells": cells})
+
     show_yesterday_prompt = (
         is_today
         and bool(has_prior_to_yesterday)
@@ -91,4 +122,5 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         "has_target_checkin": bool(has_target_checkin),
         "show_yesterday_prompt": show_yesterday_prompt,
         "week": week,
+        "heatmap_rows": heatmap_rows,
     })

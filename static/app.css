@@ -584,6 +584,57 @@ fieldset legend {
     font-style: italic;
 }
 
+.heatmap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 12px;
+}
+.heatmap-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.heatmap-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    min-width: 48px;
+}
+.heatmap-cells {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+}
+.heatmap-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--surface-2);
+    flex-shrink: 0;
+    transition: transform 100ms ease;
+    border: 1px solid transparent;
+}
+.heatmap-cell:hover {
+    transform: scale(1.4);
+    border-color: var(--text);
+    z-index: 1;
+    position: relative;
+}
+.heatmap-cell.level-1 { background: var(--bad); opacity: 0.7; }
+.heatmap-cell.level-2 { background: var(--warn); }
+.heatmap-cell.level-3 { background: var(--accent); }
+.heatmap-cell.is-viewed {
+    outline: 2px solid var(--text);
+    outline-offset: 1px;
+    z-index: 1;
+}
+@media (max-width: 720px) {
+    .heatmap-cell { width: 10px; height: 10px; }
+    .heatmap-label { min-width: 40px; font-size: 10px; }
+}
+
 .streak-list {
     list-style: none;
     padding: 0;
