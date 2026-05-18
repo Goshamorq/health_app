@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
-from app.scoring import daily_score, other_score
+from app.scoring import daily_score, other_score, streaks_for_active_habits
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
@@ -45,6 +45,8 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
                     for r in conn.execute("SELECT key, value FROM settings").fetchall()}
         score = daily_score(conn, target_date, settings)
         other = other_score(conn, target_date)
+        # Streaks are always "as of now", regardless of which day the dashboard views
+        streaks = streaks_for_active_habits(conn, today_iso, settings)
         has_target_checkin = conn.execute(
             "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (target_date,)
         ).fetchone()[0]
@@ -81,6 +83,7 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         "score": score,
         "score_band": _score_band(score["total"]),
         "other": other,
+        "streaks": streaks,
         "is_today": is_today,
         "target_date": target_date,
         "today_iso": today_iso,

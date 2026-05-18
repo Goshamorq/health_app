@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date as date_cls, timedelta
 
 SCORED_PILLARS = ("sleep", "sport", "food")
 ALL_PILLARS = (*SCORED_PILLARS, "other")
@@ -117,6 +118,75 @@ def other_score(conn: sqlite3.Connection, target_date: str) -> dict:
     else:
         stars = 3
     return {"pct": pct, "stars": stars, "active": active}
+
+
+def streak(conn: sqlite3.Connection, habit_id: int, today: str,
+           allowed_misses_per_7: int = 0) -> int:
+    """Days of current streak walking back from `today`. Forgiveness:
+    at each walking step, the rolling 7-day window of last walked days
+    may contain up to `allowed_misses_per_7` misses; once that count is
+    exceeded the streak ends. A miss is `done=0` or no habit_entries row.
+    Set allowed_misses_per_7=0 for classic (any miss breaks)."""
+    h = conn.execute(
+        "SELECT date(created_at) AS d FROM habits WHERE id = ?",
+        (habit_id,),
+    ).fetchone()
+    if h is None:
+        return 0
+    earliest = h["d"]
+
+    days = 0
+    seen_done = False
+    window: list[bool] = []  # True = miss; newest at front
+    d = date_cls.fromisoformat(today)
+    while d.isoformat() >= earliest:
+        row = conn.execute(
+            "SELECT done FROM habit_entries WHERE habit_id = ? AND checkin_date = ?",
+            (habit_id, d.isoformat()),
+        ).fetchone()
+        is_miss = row is None or not bool(row["done"])
+        window.insert(0, is_miss)
+        if len(window) > 7:
+            window.pop()
+        if sum(1 for m in window if m) > allowed_misses_per_7:
+            break
+        days += 1
+        if not is_miss:
+            seen_done = True
+        d -= timedelta(days=1)
+    # Forgiveness shouldn't manufacture a streak out of pure inactivity.
+    return days if seen_done else 0
+
+
+def streaks_for_active_habits(conn: sqlite3.Connection, today: str,
+                              settings: dict | None = None) -> list[dict]:
+    """Streak per active habit, ordered by pillar then id, for dashboard."""
+    settings = settings or {}
+    enabled = settings.get("streak_forgiveness_enabled", "1") == "1"
+    threshold = 0
+    if enabled:
+        try:
+            threshold = max(0, int(settings.get("streak_forgiveness_threshold") or "0"))
+        except (TypeError, ValueError):
+            threshold = 0
+
+    pillar_order = {p: i for i, p in enumerate(ALL_PILLARS)}
+    rows = conn.execute(
+        "SELECT id, pillar, name FROM habits "
+        "WHERE archived = 0 AND date(created_at) <= ? "
+        "ORDER BY pillar, id",
+        (today,),
+    ).fetchall()
+    out = []
+    for r in rows:
+        out.append({
+            "habit_id": r["id"],
+            "pillar": r["pillar"],
+            "name": r["name"],
+            "streak": streak(conn, r["id"], today, allowed_misses_per_7=threshold),
+        })
+    out.sort(key=lambda s: (pillar_order.get(s["pillar"], 99), -s["streak"], s["habit_id"]))
+    return out
 
 
 def is_done(habit_type: str, threshold: dict, value: dict) -> bool:

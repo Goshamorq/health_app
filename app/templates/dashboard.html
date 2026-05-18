@@ -73,9 +73,23 @@
         <p style="margin-top:8px;">Coming with Task 9 — 30-day pillar heatmap.</p>
     </section>
 
-    <section class="block placeholder-card">
+    <section class="block">
         <span class="label-eyebrow">Streaks</span>
-        <p style="margin-top:8px;">Coming with Task 8 — per-habit streak counters.</p>
+        {% if streaks %}
+        <ul class="streak-list">
+            {% for s in streaks %}
+            <li class="streak-row">
+                <span class="streak-pillar">{{ s.pillar }}</span>
+                <span class="streak-name">{{ s.name }}</span>
+                <span class="streak-days{% if s.streak == 0 %} is-zero{% endif %}">
+                    {{ s.streak }}<span class="streak-unit">d</span>
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted" style="margin-top:8px;">No active habits yet — add some on the Habits tab.</p>
+        {% endif %}
     </section>
 </div>
 {% endblock %}

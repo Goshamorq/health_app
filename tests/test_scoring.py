@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from app.scoring import daily_score, other_score
+from app.scoring import daily_score, other_score, streak, streaks_for_active_habits
 
 MIGRATIONS = Path(__file__).resolve().parent.parent / "migrations"
 
@@ -263,6 +263,111 @@ def test_other_score_buckets():
         return 3
     for pct, expected in cases:
         assert stars(pct) == expected
+
+
+# ============ Streaks ============
+
+def _seed_streak(conn, habit_id, today_iso, pattern):
+    """Set entries by walking back from today. pattern: 'D' = done, 'M' = miss-as-entry,
+    '_' = no entry. Example: 'DDD__M' = today done, -1 done, -2 done, -3 missing entry,
+    -4 missing entry, -5 explicit miss row."""
+    from datetime import date as _d, timedelta as _td
+    today = _d.fromisoformat(today_iso)
+    for i, ch in enumerate(pattern):
+        d = today - _td(days=i)
+        if ch == '_':
+            continue
+        done = 1 if ch == 'D' else 0
+        conn.execute("INSERT INTO checkins (date) VALUES (?) ON CONFLICT(date) DO NOTHING", (d.isoformat(),))
+        conn.execute(
+            "INSERT INTO habit_entries (checkin_date, habit_id, value_json, done) "
+            "VALUES (?, ?, '{}', ?) "
+            "ON CONFLICT(checkin_date, habit_id) DO UPDATE SET done = excluded.done",
+            (d.isoformat(), habit_id, done),
+        )
+    conn.commit()
+
+
+def test_streak_zero_when_no_entries(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-01-01")
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 0
+
+
+def test_streak_classic_unbroken_chain(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    _seed_streak(conn, h, "2026-05-15", "DDDDDDDD")  # 8 days done
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=0) == 8
+
+
+def test_streak_classic_breaks_on_any_miss(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    _seed_streak(conn, h, "2026-05-15", "DDDM_DD")  # done,done,done,MISS at -3
+    # threshold=0: any miss breaks → streak counts up to but not including the miss
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=0) == 3
+
+
+def test_streak_forgiveness_allows_one_miss(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    _seed_streak(conn, h, "2026-05-15", "DDMDDDD")  # 1 miss at -2 in last 7
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 7
+
+
+def test_streak_forgiveness_breaks_on_two_misses_within_7(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    _seed_streak(conn, h, "2026-05-15", "DDMDMDD")  # 2 misses (at -2 and -4) in last 7
+    # walking from today, on the 5th step (the second M at -4), window has 2 misses → break
+    # So streak = 4 (today, -1, -2 miss, -3) — wait, -2 is the first miss; chain
+    # passes it. -4 is the second; chain breaks AT -4. Days counted = today through -3 = 4.
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 4
+
+
+def test_streak_spreads_misses_across_weeks_allowed(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-04-01")
+    # Pattern: today through day-13, with misses at -3 (week 1) and -10 (week 2)
+    pattern = "DDDM" + "DDDDDD" + "M" + "DDD"  # 14 chars
+    _seed_streak(conn, h, "2026-05-15", pattern)
+    # Each rolling-7 window has at most 1 miss → forgiveness=1 allows both → full 14
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 14
+
+
+def test_streak_bounded_by_habit_creation_date(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-13")
+    _seed_streak(conn, h, "2026-05-15", "DDD")  # 3 done days available
+    # streak shouldn't walk further than habit existed (3 days back)
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 3
+
+
+def test_streak_today_missing_breaks_classic(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    _seed_streak(conn, h, "2026-05-15", "_DDDD")  # no entry today; done -1..-4
+    # classic mode: window=[miss], misses=1>0 → break immediately
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=0) == 0
+
+
+def test_streak_today_missing_forgiven(conn):
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    # today miss (forgiven), 2 done, then a miss at -3 — window holds both misses → break
+    _seed_streak(conn, h, "2026-05-15", "_DDM")
+    # streak = today..-2 = 3 days
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 3
+
+
+def test_streak_unknown_habit_returns_zero(conn):
+    assert streak(conn, 9999, "2026-05-15") == 0
+
+
+def test_streaks_for_active_habits_ordering_and_settings(conn):
+    s = _add_habit(conn, "sleep", "S1", created_at="2026-05-10")
+    sp = _add_habit(conn, "sport", "Sp1", created_at="2026-05-10")
+    _seed_streak(conn, s, "2026-05-15", "DDD")     # streak 3
+    _seed_streak(conn, sp, "2026-05-15", "DDDDD")  # streak 5
+    # forgiveness off → both still unbroken since no misses
+    out = streaks_for_active_habits(conn, "2026-05-15",
+                                    {"streak_forgiveness_enabled": "0"})
+    pillars = [r["pillar"] for r in out]
+    streaks = {r["name"]: r["streak"] for r in out}
+    assert pillars == ["sleep", "sport"]  # pillar order
+    assert streaks == {"S1": 3, "Sp1": 5}
 
 
 def test_other_pillar_does_not_affect_daily_score_with_signals(conn):
