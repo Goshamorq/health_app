@@ -1,0 +1,22 @@
+{% if entries %}
+<ul class="trigger-list">
+    {% for e in entries %}
+    <li class="trigger-row">
+        <div class="trigger-meta">
+            <span class="trigger-ts">{{ e.ts }}</span>
+            <span class="trigger-tag tag-{{ e.tag }}">{{ e.tag }}</span>
+        </div>
+        <p class="trigger-text">{{ e.text }}</p>
+        <button type="button"
+                hx-delete="/trigger/{{ e.id }}"
+                hx-target="#trigger-list"
+                hx-swap="innerHTML"
+                hx-confirm="Delete this entry?"
+                class="trigger-delete"
+                aria-label="Delete entry">×</button>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="muted" style="margin-top: 8px;">No entries yet.</p>
+{% endif %}

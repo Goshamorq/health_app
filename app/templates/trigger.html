@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Trigger journal — health_app{% endblock %}
+
+{% block content %}
+<h1>Trigger journal</h1>
+<p class="muted">Capture moments when something derailed you. Patterns become visible over time.</p>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>New entry</h2>
+    <form hx-post="/trigger"
+          hx-target="#trigger-list"
+          hx-swap="innerHTML"
+          hx-on::after-request="if(event.detail.successful) this.reset()"
+          class="trigger-form">
+        <label class="field">
+            What happened?
+            <textarea name="text" rows="3" required maxlength="2000"
+                      placeholder="Skipped sleep, ate junk after stressful call..."></textarea>
+        </label>
+        <label class="field" style="max-width: 240px;">
+            Tag
+            <select name="tag" required>
+                {% for t in allowed_tags %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+            </select>
+        </label>
+        <button type="submit" class="primary" style="align-self: flex-start;">Add entry</button>
+    </form>
+</section>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Recent</h2>
+    <div id="trigger-list">
+        {% include "_trigger_list.html" %}
+    </div>
+</section>
+{% endblock %}
