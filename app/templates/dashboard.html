@@ -4,7 +4,58 @@
 
 {% block content %}
 <h1>Dashboard</h1>
-<section class="block">
-    <p class="muted">Dashboard analytics coming with Slice 2 — score, pillar breakdown, 7-day strip, yesterday prompt.</p>
-</section>
+
+<div class="dashboard">
+    <section class="block score-hero">
+        <span class="label-eyebrow">Today's score</span>
+        <span class="score-number {{ score_band }}">{{ score.total }}</span>
+        <div class="score-pillars">
+            <span>Sleep <span class="score-pillar-value">{{ score.by_pillar.sleep }}%</span></span>
+            <span>Sport <span class="score-pillar-value">{{ score.by_pillar.sport }}%</span></span>
+            <span>Food <span class="score-pillar-value">{{ score.by_pillar.food }}%</span></span>
+        </div>
+        <div class="score-actions">
+            {% if has_today_checkin %}
+                <a href="/checkin" class="dashboard-cta">Edit today →</a>
+            {% else %}
+                <a href="/checkin" class="dashboard-cta">Log today →</a>
+            {% endif %}
+            <a href="/checkin?date={{ yesterday_iso }}" class="dashboard-cta secondary">Edit yesterday</a>
+        </div>
+    </section>
+
+    {% if show_yesterday_prompt %}
+    <section class="block yesterday-prompt" x-data="{dismissed: false}" x-show="!dismissed" x-cloak>
+        <span class="label-eyebrow">Heads up</span>
+        <p style="margin-top:8px;">Yesterday ({{ yesterday_iso }}) looks empty. Want to fill it in?</p>
+        <div class="score-actions">
+            <a href="/checkin?date={{ yesterday_iso }}" class="dashboard-cta">Fill {{ yesterday_iso }} →</a>
+            <button type="button" class="btn-ghost" @click="dismissed = true">Not now</button>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="block">
+        <span class="label-eyebrow">Last 7 days</span>
+        <div class="week-strip" style="margin-top: 12px;">
+            {% for day in week %}
+            <div class="week-day">
+                <div class="week-dot {{ day.band }}{% if day.is_today %} is-today{% endif %}"
+                     title="{{ day.date }} — score {{ day.score }}">{{ day.score }}</div>
+                <span>{{ day.weekday }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="block placeholder-card">
+        <span class="label-eyebrow">Heatmap</span>
+        <p style="margin-top:8px;">Coming with Task 9 — 30-day pillar heatmap.</p>
+    </section>
+
+    <section class="block placeholder-card">
+        <span class="label-eyebrow">Streaks</span>
+        <p style="margin-top:8px;">Coming with Task 8 — per-habit streak counters.</p>
+    </section>
+</div>
 {% endblock %}
