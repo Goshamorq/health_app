@@ -8,6 +8,13 @@
 <div class="dashboard">
     <section class="block score-hero">
         <span class="label-eyebrow">Today's score</span>
+        {% if other.active > 0 %}
+        <div class="score-stars" title="Other pillar: {{ other.pct }}%">
+            {% for i in range(3) %}
+                <span class="star{% if i < other.stars %} filled{% endif %}">★</span>
+            {% endfor %}
+        </div>
+        {% endif %}
         <span class="score-number {{ score_band }}">{{ score.total }}</span>
         <div class="score-pillars">
             <span>Sleep <span class="score-pillar-value">{{ score.by_pillar.sleep }}%</span></span>

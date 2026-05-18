@@ -28,21 +28,11 @@
     <section class="block">
         <h2>Sleep</h2>
         <div class="row">
-            <label class="field">
+            <label class="field" style="max-width: 200px;">
                 Hours
                 <input type="number" name="sleep_hours" step="0.5" min="0" max="14"
                        value="{{ checkin.sleep_hours if checkin and checkin.sleep_hours is not none else '' }}">
             </label>
-            <fieldset class="rating">
-                <legend>Quality</legend>
-                {% for v in rating_values %}
-                <label>
-                    <input type="radio" name="sleep_quality" value="{{ v }}"
-                           {% if checkin and checkin.sleep_quality == v %}checked{% endif %}>
-                    <span>{{ v }}</span>
-                </label>
-                {% endfor %}
-            </fieldset>
         </div>
         {% if habits_by_pillar['sleep'] %}
             {% with habits_to_render=habits_by_pillar['sleep'] %}{% include "_habit_inputs.html" %}{% endwith %}
@@ -99,6 +89,13 @@
                 Late meal (after 21:00)
             </label>
         </div>
+        <div class="row">
+            <label class="field" style="max-width: 200px;">
+                Proper meals today
+                <input type="number" name="meals_count" min="0" max="10" step="1"
+                       value="{{ checkin.meals_count if checkin and checkin.meals_count is not none else '' }}">
+            </label>
+        </div>
         <label class="field">
             Food today (free text)
             <textarea name="food_text" rows="2">{{ checkin.food_text if checkin and checkin.food_text else '' }}</textarea>
@@ -107,6 +104,13 @@
             {% with habits_to_render=habits_by_pillar['food'] %}{% include "_habit_inputs.html" %}{% endwith %}
         {% endif %}
     </section>
+
+    {% if habits_by_pillar['other'] %}
+    <section class="block">
+        <h2>Other</h2>
+        {% with habits_to_render=habits_by_pillar['other'] %}{% include "_habit_inputs.html" %}{% endwith %}
+    </section>
+    {% endif %}
 
     <section class="block">
         <h2>Mood</h2>

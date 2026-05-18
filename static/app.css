@@ -478,6 +478,14 @@ fieldset legend {
 .score-number.is-mid { color: var(--warn); }
 .score-number.is-bad { color: var(--bad); }
 .score-number.is-empty { color: var(--muted); }
+.score-stars {
+    display: flex;
+    gap: 4px;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--border);
+}
+.score-stars .star.filled { color: var(--warn); }
 .score-pillars {
     display: flex;
     gap: 20px;

@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
-from app.scoring import daily_score
+from app.scoring import daily_score, other_score
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
@@ -36,6 +36,7 @@ def dashboard(request: Request) -> HTMLResponse:
         settings = {r["key"]: r["value"]
                     for r in conn.execute("SELECT key, value FROM settings").fetchall()}
         score = daily_score(conn, today_iso, settings)
+        other = other_score(conn, today_iso)
         has_today_checkin = conn.execute(
             "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (today_iso,)
         ).fetchone()[0]
@@ -64,6 +65,7 @@ def dashboard(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request, "dashboard.html", {
         "score": score,
         "score_band": _score_band(score["total"]),
+        "other": other,
         "has_today_checkin": bool(has_today_checkin),
         "today_iso": today_iso,
         "yesterday_iso": yesterday_iso,
