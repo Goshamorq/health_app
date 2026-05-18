@@ -9,17 +9,55 @@
     <script src="/static/alpine.min.js" defer></script>
 </head>
 <body>
-    <div class="layout">
-        <nav class="topnav">
-            <a href="/" class="brand">health_app</a>
-            <a href="/">Hub</a>
-            <a href="/habits">Habits</a>
-            <a href="/trigger">Trigger</a>
-            <a href="/weekly">Weekly</a>
-        </nav>
-        <main>
-            {% block content %}{% endblock %}
-        </main>
-    </div>
+{% set p = request.url.path %}
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <a href="/" class="brand-name">health_app</a>
+            <span class="brand-date" x-data x-text="new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'})"></span>
+        </div>
+
+        <a href="/" class="nav-item{% if p == '/' %} active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 3v18h18"/>
+                <rect x="7" y="13" width="3" height="5"/>
+                <rect x="12" y="9" width="3" height="9"/>
+                <rect x="17" y="5" width="3" height="13"/>
+            </svg>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="/checkin" class="nav-item{% if p.startswith('/checkin') %} active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="9 12 11 14 15 10"/>
+            </svg>
+            <span>Check-in</span>
+        </a>
+
+        <a href="/habits" class="nav-item{% if p.startswith('/habits') %} active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <circle cx="4" cy="6" r="1"/>
+                <circle cx="4" cy="12" r="1"/>
+                <circle cx="4" cy="18" r="1"/>
+            </svg>
+            <span>Habits</span>
+        </a>
+
+        <a href="/settings" class="nav-item{% if p.startswith('/settings') %} active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Settings</span>
+        </a>
+    </aside>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</div>
 </body>
 </html>

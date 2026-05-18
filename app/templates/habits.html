@@ -9,66 +9,59 @@
     {% include "_habits_list.html" %}
 </div>
 
-<h2>Add habit</h2>
-<form hx-post="/habits"
-      hx-target="#habits-content"
-      hx-swap="innerHTML"
-      hx-on::after-request="if(event.detail.successful) this.reset()"
-      x-data="{type: 'binary'}"
-      class="habit-form">
-    <label>
-        Pillar
-        <select name="pillar" required>
-            {% for p in pillars %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
-        </select>
-    </label>
-    <label>
-        Name
-        <input type="text" name="name" required maxlength="120">
-    </label>
-    <label>
-        Type
-        <select name="type" x-model="type" required>
-            <option value="binary">binary (yes/no)</option>
-            <option value="time">time (target time of day)</option>
-            <option value="quantity">quantity (bucketed)</option>
-        </select>
-    </label>
-
-    <div x-show="type === 'time'" x-cloak>
+<section class="block" style="margin-top:24px;">
+    <h2>Add habit</h2>
+    <form hx-post="/habits"
+          hx-target="#habits-content"
+          hx-swap="innerHTML"
+          hx-on::after-request="if(event.detail.successful) this.reset()"
+          x-data="{type: 'binary'}"
+          class="habit-form">
         <label>
-            Target time
-            <input type="time" name="target">
-        </label>
-        <label>
-            Direction
-            <select name="direction">
-                <option value="before">before target (e.g. "in bed by ...")</option>
-                <option value="after">after target (e.g. "wake up after ...")</option>
+            Pillar
+            <select name="pillar" required>
+                {% for p in pillars %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
             </select>
         </label>
-    </div>
-
-    <div x-show="type === 'quantity'" x-cloak>
         <label>
-            Bucket labels (comma-separated, ascending)
-            <input type="text" name="bucket_labels" placeholder="&lt;5k, 5-7k, 7-10k, 10-15k, 15k+">
+            Name
+            <input type="text" name="name" required maxlength="120">
         </label>
         <label>
-            Done from bucket index (0-based)
-            <input type="number" name="min_done_bucket" min="0" value="2">
+            Type
+            <select name="type" x-model="type" required>
+                <option value="binary">binary (yes/no)</option>
+                <option value="time">time (target time of day)</option>
+                <option value="quantity">quantity (bucketed)</option>
+            </select>
         </label>
-    </div>
 
-    <button type="submit" class="primary">Add habit</button>
-</form>
+        <div x-show="type === 'time'" x-cloak>
+            <label>
+                Target time
+                <input type="time" name="target">
+            </label>
+            <label>
+                Direction
+                <select name="direction">
+                    <option value="before">before target (e.g. "in bed by ...")</option>
+                    <option value="after">after target (e.g. "wake up after ...")</option>
+                </select>
+            </label>
+        </div>
 
-<style>
-    [x-cloak] { display: none !important; }
-    .habit-form { display: flex; flex-direction: column; gap: 0.6rem; max-width: 480px; }
-    .habit-form label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.9rem; color: #555; }
-    .habit-form input, .habit-form select { padding: 0.4rem; border: 1px solid #d4cfbf; border-radius: 4px; background: #fff; }
-    .habit-form button { align-self: flex-start; margin-top: 0.5rem; }
-    .habit-form > div { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.6rem; background: #f3f0e6; border-radius: 6px; }
-</style>
+        <div x-show="type === 'quantity'" x-cloak>
+            <label>
+                Bucket labels (comma-separated, ascending)
+                <input type="text" name="bucket_labels" placeholder="&lt;5k, 5-7k, 7-10k, 10-15k, 15k+">
+            </label>
+            <label>
+                Done from bucket index (0-based)
+                <input type="number" name="min_done_bucket" min="0" value="2">
+            </label>
+        </div>
+
+        <button type="submit" class="primary">Add habit</button>
+    </form>
+</section>
 {% endblock %}

@@ -1,25 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Hub — health_app{% endblock %}
+{% block title %}Check-in {{ target_date }} — health_app{% endblock %}
 
 {% block content %}
 <header class="hub-header">
     <div class="date-nav">
-        <a href="/?date={{ prev_date }}" class="nav-arrow" title="Previous day">←</a>
+        <a href="/checkin?date={{ prev_date }}" class="nav-arrow" title="Previous day">←</a>
         <h1>{{ target_date }}{% if is_today %} <span class="muted">(today)</span>{% endif %}</h1>
-        <a href="/?date={{ next_date }}" class="nav-arrow" title="Next day">→</a>
+        <a href="/checkin?date={{ next_date }}" class="nav-arrow" title="Next day">→</a>
         <input type="date" value="{{ target_date }}" max="{{ today }}"
-               onchange="if(this.value) window.location.href='/?date='+this.value"
+               onchange="if(this.value) window.location.href='/checkin?date='+this.value"
                class="date-picker">
-        {% if not is_today %}<a href="/" class="muted">Today</a>{% endif %}
+        {% if not is_today %}<a href="/checkin" class="muted">Today</a>{% endif %}
+        <form method="post" action="/checkin/copy-previous" class="copy-form" style="margin-top:0; margin-left:auto;">
+            <input type="hidden" name="date" value="{{ target_date }}">
+            <button type="submit" class="btn-ghost"
+                    {% if has_data %}onclick="return confirm('Overwrite existing data for {{ target_date }}?')"{% endif %}>
+                Copy previous day
+            </button>
+        </form>
     </div>
-    <form method="post" action="/checkin/copy-previous" class="copy-form">
-        <input type="hidden" name="date" value="{{ target_date }}">
-        <button type="submit"
-                {% if has_data %}onclick="return confirm('Overwrite existing data for {{ target_date }}?')"{% endif %}>
-            Copy from previous day
-        </button>
-    </form>
 </header>
 
 <form method="post" action="/checkin" class="checkin-form">
@@ -143,36 +143,4 @@
 
     <button type="submit" class="primary save-btn">Save</button>
 </form>
-
-<style>
-    .hub-header { margin-bottom: 1rem; }
-    .date-nav { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-    .date-nav h1 { margin: 0; }
-    .nav-arrow { text-decoration: none; color: #555; font-size: 1.4rem; padding: 0 0.4rem; }
-    .nav-arrow:hover { color: #1a1a1a; }
-    .date-picker { padding: 0.3rem 0.5rem; border: 1px solid #d4cfbf; border-radius: 4px; background: #fff; }
-    .copy-form { margin-top: 0.5rem; }
-    .copy-form button { background: transparent; border: 1px solid #d4cfbf; padding: 0.35rem 0.7rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
-    .copy-form button:hover { background: #f0ece1; }
-    .checkin-form { display: flex; flex-direction: column; gap: 1rem; }
-    .block { background: #fff; border: 1px solid #e5e2d8; border-radius: 6px; padding: 0.85rem 1rem; }
-    .block h2 { margin-top: 0; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: #888; }
-    .row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 0.5rem; }
-    .field { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.9rem; color: #555; flex: 1; min-width: 140px; }
-    .field input, .field textarea { padding: 0.4rem; border: 1px solid #d4cfbf; border-radius: 4px; background: #fafaf7; font: inherit; }
-    fieldset { border: none; padding: 0; margin: 0; display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
-    fieldset legend { font-size: 0.9rem; color: #555; margin-right: 0.4rem; }
-    .rating label, .bucket label { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.3rem 0.5rem; border: 1px solid #d4cfbf; border-radius: 4px; cursor: pointer; background: #fafaf7; font-size: 0.85rem; }
-    .rating label input, .bucket label input { display: none; }
-    .rating label:has(input:checked), .bucket label:has(input:checked) { background: #2e6f4f; color: #fff; border-color: #2e6f4f; }
-    .flags { gap: 1.2rem; }
-    .flag { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; }
-    .habit-rows { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #e5e2d8; }
-    .habit-input { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
-    .habit-input .habit-label { flex: 1; }
-    .habit-input .habit-hint { color: #888; font-size: 0.8rem; }
-    .habit-input input[type="time"] { padding: 0.25rem; border: 1px solid #d4cfbf; border-radius: 4px; }
-    .habit-input.done .habit-label { color: #2e6f4f; }
-    .save-btn { align-self: flex-start; padding: 0.65rem 1.25rem; font-weight: 500; }
-</style>
 {% endblock %}

@@ -7,7 +7,7 @@
         <li class="habit-row" x-data="{editing: false}">
             <div class="habit-main" x-show="!editing">
                 <span class="habit-name">{{ h.name }}</span>
-                <span class="habit-meta muted">
+                <span class="habit-meta">
                     {{ h.type }}{% if h.type == 'time' %} · {{ h.threshold.direction }} {{ h.threshold.target }}{% elif h.type == 'quantity' %} · {{ h.threshold.bucket_labels | join(' / ') }} (done ≥ #{{ h.threshold.min_done_bucket }}){% endif %}
                 </span>
                 <span class="habit-actions">
@@ -25,7 +25,7 @@
                   hx-swap="innerHTML">
                 <input type="text" name="name" value="{{ h.name }}" required maxlength="120">
                 <button type="submit" class="primary">Save</button>
-                <button type="button" @click="editing = false">Cancel</button>
+                <button type="button" class="btn-ghost" @click="editing = false">Cancel</button>
             </form>
         </li>
         {% endfor %}
@@ -49,26 +49,10 @@
             <button type="button"
                     hx-post="/habits/{{ h.id }}/unarchive"
                     hx-target="#habits-content"
-                    hx-swap="innerHTML">Restore</button>
+                    hx-swap="innerHTML"
+                    style="margin-left:auto;">Restore</button>
         </li>
         {% endfor %}
     </ul>
 </section>
 {% endif %}
-
-<style>
-    [x-cloak] { display: none !important; }
-    .pillar { margin-bottom: 1.25rem; }
-    .pillar h2 { text-transform: capitalize; }
-    .habit-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
-    .habit-row { background: #fff; border: 1px solid #e5e2d8; border-radius: 6px; padding: 0.6rem 0.75rem; }
-    .habit-main { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-    .habit-name { font-weight: 500; }
-    .habit-meta { font-size: 0.85rem; }
-    .habit-actions { margin-left: auto; display: flex; gap: 0.4rem; }
-    .habit-actions button { background: transparent; border: 1px solid #d4cfbf; padding: 0.25rem 0.55rem; border-radius: 4px; font-size: 0.85rem; }
-    .habit-actions button:hover { background: #f0ece1; }
-    .habit-edit { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
-    .habit-edit input { flex: 1; min-width: 200px; padding: 0.35rem 0.5rem; border: 1px solid #d4cfbf; border-radius: 4px; }
-    .archived-row { display: flex; align-items: center; gap: 0.75rem; opacity: 0.7; }
-</style>

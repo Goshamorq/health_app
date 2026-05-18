@@ -72,10 +72,10 @@ def _load_hub_context(target_date: str) -> dict:
     }
 
 
-@router.get("/", response_class=HTMLResponse)
-def hub(request: Request, date: str | None = None) -> HTMLResponse:
+@router.get("/checkin", response_class=HTMLResponse)
+def checkin_get(request: Request, date: str | None = None) -> HTMLResponse:
     target_date = _parse_date(date)
-    return templates.TemplateResponse(request, "hub.html", _load_hub_context(target_date))
+    return templates.TemplateResponse(request, "checkin.html", _load_hub_context(target_date))
 
 
 def _int_or_none(s: str | None) -> int | None:
@@ -166,7 +166,7 @@ async def save_checkin(request: Request):
                 (target_date, h["id"], json.dumps(value), int(done)),
             )
 
-    return RedirectResponse(f"/?date={target_date}", status_code=303)
+    return RedirectResponse(f"/checkin?date={target_date}", status_code=303)
 
 
 @router.post("/checkin/copy-previous")
@@ -179,7 +179,7 @@ async def copy_previous(request: Request):
             (target_date,),
         ).fetchone()
         if prev is None:
-            return RedirectResponse(f"/?date={target_date}", status_code=303)
+            return RedirectResponse(f"/checkin?date={target_date}", status_code=303)
         prev_date = prev["date"]
         conn.execute(
             """INSERT INTO checkins
@@ -216,4 +216,4 @@ async def copy_previous(request: Request):
                  done = excluded.done""",
             (target_date, prev_date),
         )
-    return RedirectResponse(f"/?date={target_date}", status_code=303)
+    return RedirectResponse(f"/checkin?date={target_date}", status_code=303)
