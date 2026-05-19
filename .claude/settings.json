@@ -9,7 +9,9 @@
       "Bash(curl -s -X POST --data-urlencode date=__TRACKED_VAR__ --data-urlencode sleep_hours=8 --data-urlencode water_bucket=2+ --data-urlencode meals_count=3 http://127.0.0.1:8765/checkin -o /dev/null -w 'STATUS=%{http_code}\\\\n')",
       "Bash(awk '{print $2}')",
       "Bash(grep -c '\\\\.__TRACKED_VAR__\\\\b' static/app.css)",
-      "Bash(grep -rc 'class=\"[^\"]*\\\\b__TRACKED_VAR__\\\\b' app/templates/)"
+      "Bash(grep -rc 'class=\"[^\"]*\\\\b__TRACKED_VAR__\\\\b' app/templates/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8765/checkin)",
+      "Bash(curl -s \"http://127.0.0.1:8765/checkin?date=2026-05-15\")"
     ]
   }
 }

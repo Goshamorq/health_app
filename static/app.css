@@ -307,10 +307,28 @@ fieldset legend {
     color: var(--text);
     background: var(--surface-2);
 }
-.date-picker {
-    width: auto;
-    padding: 6px 10px;
+.date-h1 {
+    cursor: pointer;
+    user-select: none;
 }
+.date-h1:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--muted);
+}
+.date-picker-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.date-nav-spacer { flex: 1; min-width: 8px; }
 .copy-form { margin-top: 12px; }
 
 .checkin-form {

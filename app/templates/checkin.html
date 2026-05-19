@@ -6,16 +6,24 @@
 <header class="hub-header">
     <div class="date-nav">
         <a href="/checkin?date={{ prev_date }}" class="nav-arrow" title="Previous day">←</a>
-        <h1>{{ target_date }} <span class="muted" style="font-size:0.7em; font-weight:500;">{{ target_weekday }}</span>{% if is_today %} <span class="muted">(today)</span>{% endif %}</h1>
+        <h1 class="date-h1"
+            onclick="document.getElementById('date-picker-hidden').showPicker()"
+            title="Pick a date">
+            {{ target_date }}
+            <span class="muted" style="font-size:0.7em; font-weight:500;">{{ target_weekday }}</span>{% if is_today %} <span class="muted">(today)</span>{% endif %}
+        </h1>
+        <input type="date" id="date-picker-hidden" class="date-picker-hidden"
+               value="{{ target_date }}" max="{{ today }}"
+               onchange="if(this.value) window.location.href='/checkin?date='+this.value">
         <a href="/checkin?date={{ next_date }}" class="nav-arrow" title="Next day">→</a>
-        <input type="date" value="{{ target_date }}" max="{{ today }}"
-               onchange="if(this.value) window.location.href='/checkin?date='+this.value"
-               class="date-picker">
         {% if not is_today %}<a href="/checkin" class="muted">Today</a>{% endif %}
-        <form method="post" action="/checkin/reset" class="copy-form" style="margin-top:0; margin-left:auto;">
+
+        <div class="date-nav-spacer"></div>
+
+        <form method="post" action="/checkin/reset" class="copy-form" style="margin-top:0;">
             <input type="hidden" name="date" value="{{ target_date }}">
             <button type="submit" class="btn-ghost"
-                    {% if has_data %}onclick="return confirm('Reset all data for {{ target_date }}? This deletes the day's check-in and habit entries.')"{% else %}disabled{% endif %}>
+                    {% if has_data %}onclick="return confirm('Reset all data for {{ target_date }}? This deletes the day''s check-in and habit entries.')"{% else %}disabled{% endif %}>
                 Reset the day
             </button>
         </form>
