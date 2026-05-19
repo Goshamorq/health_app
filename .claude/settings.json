@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git -c user.name=Goshamorq -c user.email=goshamorq@yandex.ru commit -m ' *)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8765/)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8765/)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8765__TRACKED_VAR__)",
+      "Bash(curl -s http://127.0.0.1:8765/weekly)",
+      "Bash(.venv/bin/python -c \"from datetime import date; print\\(date.today\\(\\).isoformat\\(\\)\\)\")",
+      "Bash(curl -s -X POST --data-urlencode date=__TRACKED_VAR__ --data-urlencode sleep_hours=8 --data-urlencode water_bucket=2+ --data-urlencode meals_count=3 http://127.0.0.1:8765/checkin -o /dev/null -w 'STATUS=%{http_code}\\\\n')"
     ]
   }
 }

@@ -119,9 +119,6 @@ async def save_checkin(request: Request):
     mood_pm = _int_or_none(form.get("mood_pm"))
     water = _bucket_or_none(form.get("water_bucket"), WATER_BUCKETS)
     steps = _bucket_or_none(form.get("steps_bucket"), STEPS_BUCKETS)
-    caffeine = 1 if form.get("caffeine") else 0
-    alcohol = 1 if form.get("alcohol") else 0
-    late_meal = 1 if form.get("late_meal") else 0
     food_text = _text_or_none(form.get("food_text"))
     note_text = _text_or_none(form.get("note_text"))
     meals_count = _int_or_none(form.get("meals_count"))
@@ -130,9 +127,9 @@ async def save_checkin(request: Request):
         conn.execute(
             """INSERT INTO checkins
                 (date, sleep_hours, bedtime, mood_am, mood_pm,
-                 water_bucket, steps_bucket, caffeine, alcohol, late_meal,
+                 water_bucket, steps_bucket,
                  food_text, note_text, meals_count, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
                ON CONFLICT(date) DO UPDATE SET
                  sleep_hours = excluded.sleep_hours,
                  bedtime = excluded.bedtime,
@@ -140,15 +137,12 @@ async def save_checkin(request: Request):
                  mood_pm = excluded.mood_pm,
                  water_bucket = excluded.water_bucket,
                  steps_bucket = excluded.steps_bucket,
-                 caffeine = excluded.caffeine,
-                 alcohol = excluded.alcohol,
-                 late_meal = excluded.late_meal,
                  food_text = excluded.food_text,
                  note_text = excluded.note_text,
                  meals_count = excluded.meals_count,
                  updated_at = datetime('now')""",
             (target_date, sleep_hours, bedtime, mood_am, mood_pm,
-             water, steps, caffeine, alcohol, late_meal,
+             water, steps,
              food_text, note_text, meals_count),
         )
 
@@ -187,9 +181,9 @@ async def copy_previous(request: Request):
         conn.execute(
             """INSERT INTO checkins
                 (date, sleep_hours, bedtime, mood_am, mood_pm,
-                 water_bucket, steps_bucket, caffeine, alcohol, late_meal,
+                 water_bucket, steps_bucket,
                  food_text, note_text, meals_count, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
                ON CONFLICT(date) DO UPDATE SET
                  sleep_hours = excluded.sleep_hours,
                  bedtime = excluded.bedtime,
@@ -197,16 +191,12 @@ async def copy_previous(request: Request):
                  mood_pm = excluded.mood_pm,
                  water_bucket = excluded.water_bucket,
                  steps_bucket = excluded.steps_bucket,
-                 caffeine = excluded.caffeine,
-                 alcohol = excluded.alcohol,
-                 late_meal = excluded.late_meal,
                  food_text = excluded.food_text,
                  note_text = excluded.note_text,
                  meals_count = excluded.meals_count,
                  updated_at = datetime('now')""",
             (target_date, prev["sleep_hours"], prev["bedtime"], prev["mood_am"],
              prev["mood_pm"], prev["water_bucket"], prev["steps_bucket"],
-             prev["caffeine"], prev["alcohol"], prev["late_meal"],
              prev["food_text"], prev["note_text"], prev["meals_count"]),
         )
         conn.execute(

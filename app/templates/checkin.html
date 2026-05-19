@@ -82,23 +82,6 @@
                 {% endfor %}
             </fieldset>
         </div>
-        <div class="row flags">
-            <label class="flag">
-                <input type="checkbox" name="caffeine" value="1"
-                       {% if checkin and checkin.caffeine %}checked{% endif %}>
-                Caffeine
-            </label>
-            <label class="flag">
-                <input type="checkbox" name="alcohol" value="1"
-                       {% if checkin and checkin.alcohol %}checked{% endif %}>
-                Alcohol
-            </label>
-            <label class="flag">
-                <input type="checkbox" name="late_meal" value="1"
-                       {% if checkin and checkin.late_meal %}checked{% endif %}>
-                Late meal (after 21:00)
-            </label>
-        </div>
         <div class="row">
             <label class="field" style="max-width: 200px;">
                 Proper meals today
