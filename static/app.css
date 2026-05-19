@@ -634,8 +634,8 @@ fieldset legend {
    cells inside; outline-offset gives a few px of breathing room. */
 .heatmap-bg-col.is-viewed {
     outline: 1px solid var(--muted);
-    outline-offset: 3px;
-    border-radius: 6px;
+    outline-offset: 1px;
+    border-radius: 5px;
 }
 .heatmap-bg .heatmap-month-divider {
     width: 1px;
@@ -654,9 +654,9 @@ fieldset legend {
 .heatmap-dates-row, .heatmap-pillar { position: relative; z-index: 1; }
 .heatmap-dates-row {
     display: flex;
-    align-items: end;
+    align-items: center;
     gap: 12px;
-    height: 14px;
+    height: 10px;
 }
 .heatmap-dates-spacer { width: 80px; flex-shrink: 0; }
 .heatmap-dates {
@@ -904,6 +904,32 @@ fieldset legend {
 }
 .journal-tab:hover { color: var(--text); }
 .journal-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+/* === Goal banner on dashboard === */
+.goal-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-left: 3px solid var(--accent);
+    flex-wrap: wrap;
+}
+.goal-banner-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.goal-banner-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+.goal-banner-name:hover { color: var(--accent); }
+.goal-banner-deadline { font-size: 13px; }
+.goal-banner-action { margin: 0; }
+.goal-banner-action button { padding: 8px 18px; }
 
 /* === Goals === */
 .goal-card { display: flex; flex-direction: column; gap: 8px; }

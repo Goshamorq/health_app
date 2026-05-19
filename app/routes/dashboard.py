@@ -57,6 +57,10 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         other = other_score(conn, target_date)
         # Streaks are always "as of now", regardless of which day the dashboard views
         streaks = streaks_for_active_habits(conn, today_iso, settings)
+        active_goal_row = conn.execute(
+            "SELECT id, name, deadline FROM goals WHERE status = 'active' LIMIT 1"
+        ).fetchone()
+        active_goal = dict(active_goal_row) if active_goal_row else None
         has_target_checkin = conn.execute(
             "SELECT EXISTS(SELECT 1 FROM checkins WHERE date = ?)", (target_date,)
         ).fetchone()[0]
@@ -178,4 +182,5 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         "week": week,
         "heatmap_rows": heatmap_rows,
         "heatmap_date_meta": heatmap_date_meta,
+        "active_goal": active_goal,
     })

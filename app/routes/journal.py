@@ -179,18 +179,27 @@ def _close_goal(goal_id: int, new_status: str, closing_note: str | None):
         )
 
 
+def _safe_back(form) -> str:
+    """Allow the caller to specify a redirect target. Restricted to same-origin
+    paths (must start with /, no // protocol-relative or full URLs)."""
+    back = (form.get("back") or "").strip()
+    if back.startswith("/") and not back.startswith("//"):
+        return back
+    return "/journal/goals?saved=1"
+
+
 @router.post("/journal/goals/{goal_id}/complete")
 async def goals_complete(goal_id: int, request: Request):
     form = await request.form()
     _close_goal(goal_id, "completed", _form_text(form, "closing_note"))
-    return RedirectResponse("/journal/goals?saved=1", status_code=303)
+    return RedirectResponse(_safe_back(form), status_code=303)
 
 
 @router.post("/journal/goals/{goal_id}/fail")
 async def goals_fail(goal_id: int, request: Request):
     form = await request.form()
     _close_goal(goal_id, "failed", _form_text(form, "closing_note"))
-    return RedirectResponse("/journal/goals?saved=1", status_code=303)
+    return RedirectResponse(_safe_back(form), status_code=303)
 
 
 @router.post("/journal/goals/{goal_id}/archive")
