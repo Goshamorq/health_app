@@ -87,6 +87,22 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         heatmap_dates = [(today - timedelta(days=o)).isoformat()
                          for o in range(29, -1, -1)]
 
+        # Per-date meta for the dates row + weekend/month-boundary classes
+        heatmap_date_meta: list[dict] = []
+        prev_month = None
+        for d_iso in heatmap_dates:
+            d = date_cls.fromisoformat(d_iso)
+            wd = d.weekday()  # 0=Mon ... 6=Sun
+            heatmap_date_meta.append({
+                "date": d_iso,
+                "weekday": wd,
+                "is_weekend": wd >= 5,
+                "is_monday": wd == 0,
+                "is_month_start": prev_month is not None and d.month != prev_month,
+                "day_of_month": d.day,
+            })
+            prev_month = d.month
+
         heatmap_by_date = []
         for d_iso in heatmap_dates:
             s = daily_score(conn, d_iso, settings)
@@ -113,10 +129,12 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         habits_by_pillar: dict[str, list[dict]] = {"sleep": [], "sport": [], "food": [], "other": []}
         for h in habit_rows:
             cells = [{
-                "date": d_iso,
-                "done": done_map.get((h["id"], d_iso), False),
-                "is_viewed": d_iso == target_date,
-            } for d_iso in heatmap_dates]
+                "date": meta["date"],
+                "done": done_map.get((h["id"], meta["date"]), False),
+                "is_viewed": meta["date"] == target_date,
+                "is_weekend": meta["is_weekend"],
+                "is_month_start": meta["is_month_start"],
+            } for meta in heatmap_date_meta]
             habits_by_pillar[h["pillar"]].append({
                 "habit_id": h["id"],
                 "name": h["name"],
@@ -130,7 +148,9 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
                 "pct": day["by_pillar"][pillar],
                 "level": _heatmap_level(day["by_pillar"][pillar]),
                 "is_viewed": day["date"] == target_date,
-            } for day in heatmap_by_date]
+                "is_weekend": meta["is_weekend"],
+                "is_month_start": meta["is_month_start"],
+            } for day, meta in zip(heatmap_by_date, heatmap_date_meta)]
             heatmap_rows.append({
                 "pillar": pillar,
                 "cells": cells,
@@ -156,4 +176,5 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         "show_yesterday_prompt": show_yesterday_prompt,
         "week": week,
         "heatmap_rows": heatmap_rows,
+        "heatmap_date_meta": heatmap_date_meta,
     })

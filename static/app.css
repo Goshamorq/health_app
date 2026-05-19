@@ -609,6 +609,27 @@ fieldset legend {
     gap: 4px;
     margin-top: 12px;
 }
+.heatmap-dates-row {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    height: 14px;
+}
+.heatmap-dates-spacer { width: 80px; flex-shrink: 0; }
+.heatmap-dates {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+}
+.heatmap-date-cell {
+    width: 14px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 9px;
+    line-height: 1;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
 .heatmap-row {
     display: flex;
     align-items: center;
@@ -625,6 +646,19 @@ fieldset legend {
     display: flex;
     gap: 2px;
     flex: 1;
+}
+/* Weekend tint on EMPTY pillar cells + miss habit cells. Colored cells keep
+   their pillar hue — the data signal dominates. */
+.heatmap-cell.is-weekend.level-0 { background: rgb(100 116 139 / 0.18); }
+.heatmap-cell.is-habit.is-weekend.miss { background: rgb(100 116 139 / 0.18); }
+.heatmap-date-cell.is-weekend { background: rgb(100 116 139 / 0.18); }
+/* Month-boundary: 4px gap before the first cell of a new month, plus a thin
+   muted line. Applied to all cell variants so dates / pillar / habit columns
+   shift together. */
+.heatmap-cell.is-month-start,
+.heatmap-date-cell.is-month-start {
+    margin-left: 6px;
+    box-shadow: -3px 0 0 var(--border);
 }
 .heatmap-cell {
     width: 14px;

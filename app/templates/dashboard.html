@@ -71,6 +71,16 @@
     <section class="block">
         <span class="label-eyebrow">30-day heatmap</span>
         <div class="heatmap">
+            <div class="heatmap-dates-row">
+                <span class="heatmap-dates-spacer"></span>
+                <div class="heatmap-dates">
+                    {% for m in heatmap_date_meta %}
+                    <span class="heatmap-date-cell{% if m.is_weekend %} is-weekend{% endif %}{% if m.is_month_start %} is-month-start{% endif %}">
+                        {% if m.is_monday %}{{ m.day_of_month }}{% endif %}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
             {% for row in heatmap_rows %}
             <div class="heatmap-pillar" x-data="{open: false}">
                 <div class="heatmap-row">
@@ -84,7 +94,7 @@
                     <div class="heatmap-cells">
                         {% for cell in row.cells %}
                         <a href="/?date={{ cell.date }}"
-                           class="heatmap-cell pillar-{{ row.pillar }} level-{{ cell.level }}{% if cell.is_viewed %} is-viewed{% endif %}"
+                           class="heatmap-cell pillar-{{ row.pillar }} level-{{ cell.level }}{% if cell.is_viewed %} is-viewed{% endif %}{% if cell.is_weekend %} is-weekend{% endif %}{% if cell.is_month_start %} is-month-start{% endif %}"
                            title="{{ cell.date }}: {{ row.pillar }} {{ cell.pct }}%"></a>
                         {% endfor %}
                     </div>
@@ -97,7 +107,7 @@
                         <div class="heatmap-habit-cells">
                             {% for cell in habit.cells %}
                             <a href="/?date={{ cell.date }}"
-                               class="heatmap-cell is-habit pillar-{{ row.pillar }} {% if cell.done %}done{% else %}miss{% endif %}{% if cell.is_viewed %} is-viewed{% endif %}"
+                               class="heatmap-cell is-habit pillar-{{ row.pillar }} {% if cell.done %}done{% else %}miss{% endif %}{% if cell.is_viewed %} is-viewed{% endif %}{% if cell.is_weekend %} is-weekend{% endif %}{% if cell.is_month_start %} is-month-start{% endif %}"
                                title="{{ cell.date }}: {{ habit.name }} — {{ 'done' if cell.done else 'miss' }}"></a>
                             {% endfor %}
                         </div>
