@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Trigger journal — I help myself{% endblock %}
+{% block title %}Journal · Triggers — I help myself{% endblock %}
 
 {% block content %}
-<h1>Trigger journal</h1>
+<h1>Journal</h1>
+{% include "_journal_tabs.html" %}
+
 <p class="muted">Capture moments when something derailed you. Patterns become visible over time.</p>
 
 <section class="block" style="margin-top: 16px;">
     <h2>New entry</h2>
-    <form hx-post="/trigger"
+    <form hx-post="/journal/triggers"
           hx-target="#trigger-list"
           hx-swap="innerHTML"
           hx-on::after-request="if(event.detail.successful) this.reset()"

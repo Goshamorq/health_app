@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Journal · Goals — I help myself{% endblock %}
+
+{% block content %}
+<h1>Journal</h1>
+{% include "_journal_tabs.html" %}
+
+{% if saved %}
+<section class="block" style="border-left: 3px solid var(--accent); margin-top: 12px;">
+    <p>Saved.</p>
+</section>
+{% endif %}
+
+{# ===== Active goal ===== #}
+{% if goals.active %}
+{% set g = goals.active %}
+<section class="block goal-card goal-active{% if g.is_overdue %} is-overdue{% endif %}" x-data="{closing: null, editing: false}">
+    <span class="label-eyebrow">Active goal</span>
+
+    <div x-show="!editing">
+        <h2 class="goal-name">{{ g.name }}</h2>
+        <div class="goal-meta">
+            <span>Deadline: <strong>{{ g.deadline }}</strong></span>
+            {% if g.is_overdue %}
+                <span class="goal-overdue">overdue by {{ -g.days_left }} day{{ 's' if g.days_left != -1 else '' }}</span>
+            {% else %}
+                <span class="muted">{{ g.days_left }} day{{ 's' if g.days_left != 1 else '' }} left</span>
+            {% endif %}
+            <span class="muted">activated {{ g.activated_at }}</span>
+        </div>
+        {% if g.reward %}<p class="goal-reward"><span class="goal-label">Reward:</span> {{ g.reward }}</p>{% endif %}
+        {% if g.punishment %}<p class="goal-punishment"><span class="goal-label">Punishment:</span> {{ g.punishment }}</p>{% endif %}
+
+        {% if g.is_overdue %}
+        <div class="goal-overdue-banner">
+            <p>Deadline passed. Did you actually make it?</p>
+        </div>
+        {% endif %}
+
+        <div class="goal-actions">
+            <button type="button" class="primary" @click="closing = 'complete'">Mark complete</button>
+            <button type="button" class="btn-ghost" @click="closing = 'fail'">{% if g.is_overdue %}Accept failure{% else %}Mark failed{% endif %}</button>
+            <button type="button" class="btn-ghost" @click="editing = true">Edit</button>
+            <form method="post" action="/journal/goals/{{ g.id }}/deactivate" style="display:inline;">
+                <button type="submit" class="btn-ghost">Deactivate</button>
+            </form>
+        </div>
+
+        <form x-show="closing" x-cloak class="goal-close-form"
+              :action="`/journal/goals/{{ g.id }}/${closing === 'complete' ? 'complete' : 'fail'}`"
+              method="post">
+            <textarea name="closing_note" rows="2" placeholder="Optional reflection on how it went…"></textarea>
+            <div>
+                <button type="submit" class="primary" x-text="closing === 'complete' ? 'Complete' : 'Fail'"></button>
+                <button type="button" class="btn-ghost" @click="closing = null">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <form x-show="editing" x-cloak class="goal-edit-form"
+          method="post" action="/journal/goals/{{ g.id }}/edit">
+        {% include "_goal_form_fields.html" %}
+        <div class="goal-actions">
+            <button type="submit" class="primary">Save changes</button>
+            <button type="button" class="btn-ghost" @click="editing = false">Cancel</button>
+        </div>
+    </form>
+</section>
+{% else %}
+<section class="block goal-card goal-empty">
+    <span class="label-eyebrow">Active goal</span>
+    <p class="muted">No active goal. Activate a draft below or add a new one.</p>
+</section>
+{% endif %}
+
+{# ===== Drafts ===== #}
+{% if goals.drafts %}
+<section class="block" style="margin-top: 12px;">
+    <span class="label-eyebrow">Drafts ({{ goals.drafts | length }})</span>
+    <ul class="goal-list">
+        {% for d in goals.drafts %}
+        <li class="goal-row" x-data="{editing: false}">
+            <div x-show="!editing" class="goal-row-view">
+                <div class="goal-row-main">
+                    <span class="goal-name">{{ d.name }}</span>
+                    <span class="goal-row-meta">deadline {{ d.deadline }}{% if d.reward %} · reward: {{ d.reward }}{% endif %}</span>
+                </div>
+                <div class="goal-row-actions">
+                    {% if not goals.active %}
+                    <form method="post" action="/journal/goals/{{ d.id }}/activate" style="display:inline;">
+                        <button type="submit" class="primary" title="Activate">Activate</button>
+                    </form>
+                    {% endif %}
+                    <button type="button" class="btn-ghost" @click="editing = true">Edit</button>
+                    <form method="post" action="/journal/goals/{{ d.id }}/archive" style="display:inline;">
+                        <button type="submit" class="btn-ghost" title="Move to archive">Archive</button>
+                    </form>
+                    <button type="button" class="btn-ghost goal-delete"
+                            hx-delete="/journal/goals/{{ d.id }}"
+                            hx-confirm="Delete this draft? This cannot be undone."
+                            hx-on::after-request="if(event.detail.successful) window.location.reload()">Delete</button>
+                </div>
+            </div>
+            <form x-show="editing" x-cloak class="goal-edit-form"
+                  method="post" action="/journal/goals/{{ d.id }}/edit">
+                {% set g = d %}{% include "_goal_form_fields.html" %}
+                <div class="goal-actions">
+                    <button type="submit" class="primary">Save</button>
+                    <button type="button" class="btn-ghost" @click="editing = false">Cancel</button>
+                </div>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{# ===== New goal form ===== #}
+<section class="block" style="margin-top: 12px;">
+    <h2>New goal</h2>
+    <form method="post" action="/journal/goals" class="goal-edit-form">
+        {% set g = none %}{% include "_goal_form_fields.html" %}
+        <button type="submit" class="primary">Save as draft</button>
+    </form>
+</section>
+
+{# ===== History ===== #}
+{% if goals.completed or goals.failed or goals.archived %}
+<section class="block" style="margin-top: 12px;" x-data="{open: false}">
+    <h2 style="cursor: pointer;" @click="open = !open">
+        History
+        <span class="muted" style="font-size: 13px; font-weight: 400;">
+            ({{ goals.completed | length }} done, {{ goals.failed | length }} failed, {{ goals.archived | length }} archived) <span x-text="open ? '▾' : '▸'">▸</span>
+        </span>
+    </h2>
+    <div x-show="open" x-cloak style="margin-top: 8px;">
+        {% for bucket_name, bucket in [('Completed', goals.completed), ('Failed', goals.failed), ('Archived', goals.archived)] %}
+        {% if bucket %}
+        <h3 class="threshold-subhead" style="margin-top: 12px;">{{ bucket_name }}</h3>
+        <ul class="goal-list">
+            {% for h in bucket %}
+            <li class="goal-row goal-row-closed">
+                <div class="goal-row-view">
+                    <div class="goal-row-main">
+                        <span class="goal-name">{{ h.name }}</span>
+                        <span class="goal-row-meta">deadline {{ h.deadline }} · closed {{ h.closed_at or '—' }}{% if h.closing_note %} · "{{ h.closing_note }}"{% endif %}</span>
+                    </div>
+                    <div class="goal-row-actions">
+                        {% if h.status == 'archived' %}
+                        <form method="post" action="/journal/goals/{{ h.id }}/unarchive" style="display:inline;">
+                            <button type="submit" class="btn-ghost">Restore as draft</button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="/journal/goals/{{ h.id }}/archive" style="display:inline;">
+                            <button type="submit" class="btn-ghost">Archive</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

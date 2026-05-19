@@ -1,0 +1,22 @@
+<label class="field">
+    Name
+    <input type="text" name="name" required maxlength="120"
+           value="{{ g.name if g else '' }}">
+</label>
+<div class="row" style="gap: 12px;">
+    <label class="field" style="max-width: 220px;">
+        Deadline
+        <input type="date" name="deadline" required
+               value="{{ g.deadline if g else today }}">
+    </label>
+</div>
+<label class="field">
+    Reward (for yourself, when complete)
+    <textarea name="reward" rows="2" maxlength="500"
+              placeholder="What you'll do for yourself">{{ g.reward if g and g.reward else '' }}</textarea>
+</label>
+<label class="field">
+    Punishment (when failed)
+    <textarea name="punishment" rows="2" maxlength="500"
+              placeholder="What you'll do to yourself">{{ g.punishment if g and g.punishment else '' }}</textarea>
+</label>

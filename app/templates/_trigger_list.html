@@ -12,7 +12,7 @@
                 <button type="button" class="trigger-edit" aria-label="Edit entry"
                         @click="editing = true">✎</button>
                 <button type="button" class="trigger-delete" aria-label="Delete entry"
-                        hx-delete="/trigger/{{ e.id }}"
+                        hx-delete="/journal/triggers/{{ e.id }}"
                         hx-target="#trigger-list"
                         hx-swap="innerHTML"
                         hx-confirm="Delete this entry?">×</button>
@@ -20,7 +20,7 @@
         </div>
 
         <form class="trigger-edit-form" x-show="editing" x-cloak
-              hx-post="/trigger/{{ e.id }}/edit"
+              hx-post="/journal/triggers/{{ e.id }}/edit"
               hx-target="#trigger-list"
               hx-swap="innerHTML">
             <textarea name="text" rows="3" required maxlength="2000">{{ e.text }}</textarea>
