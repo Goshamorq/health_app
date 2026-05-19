@@ -3,7 +3,7 @@
     {% for n in notes %}
     <li class="note-row" x-data="{editing: false}">
         <div class="note-row-view" x-show="!editing">
-            <span class="note-date">{{ n.date }}</span>
+            <span class="note-date">{{ n.date }}{% if n.weekday %} · {{ n.weekday }}{% endif %}</span>
             <p class="note-text">{{ n.note_text }}</p>
             <div class="note-actions">
                 <button type="button" class="note-edit" aria-label="Edit note"
@@ -20,7 +20,7 @@
               hx-target="#notes-list"
               hx-swap="innerHTML">
             <div class="note-edit-meta">
-                <span class="note-date">{{ n.date }}</span>
+                <span class="note-date">{{ n.date }}{% if n.weekday %} · {{ n.weekday }}{% endif %}</span>
             </div>
             <textarea name="note_text" rows="4" required>{{ n.note_text }}</textarea>
             <div class="note-edit-actions">

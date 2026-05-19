@@ -4,7 +4,7 @@
     <li class="trigger-row" x-data="{editing: false}">
         <div class="trigger-row-view" x-show="!editing">
             <div class="trigger-meta">
-                <span class="trigger-ts">{{ e.ts }}</span>
+                <span class="trigger-ts">{{ e.ts }}{% if e.weekday %} · {{ e.weekday }}{% endif %}</span>
                 <span class="trigger-tag tag-{{ e.tag }}">{{ e.tag }}</span>
             </div>
             <p class="trigger-text">{{ e.text }}</p>
@@ -30,7 +30,7 @@
                     <option value="{{ t }}" {% if t == e.tag %}selected{% endif %}>{{ t }}</option>
                     {% endfor %}
                 </select>
-                <span class="trigger-ts">{{ e.ts }}</span>
+                <span class="trigger-ts">{{ e.ts }}{% if e.weekday %} · {{ e.weekday }}{% endif %}</span>
             </div>
             <div class="trigger-edit-actions">
                 <button type="submit" class="primary">Save</button>

@@ -77,7 +77,7 @@
                         {% endif %}
                     </div>
                     <div class="week-dot {{ day.band }}{% if day.is_viewed %} is-viewed{% endif %}">{{ day.score }}</div>
-                    <span>{{ day.weekday }}</span>
+                    <span>{{ day.day_of_month }} {{ day.weekday }}</span>
                 </div>
             </a>
             {% endfor %}

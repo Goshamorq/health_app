@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
-from app.scoring import ALL_PILLARS, STEPS_BUCKETS, WATER_BUCKETS, is_done, parse_habit_input
+from app.scoring import ALL_PILLARS, STEPS_BUCKETS, WATER_BUCKETS, WEEKDAY_SHORT, is_done, parse_habit_input
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
@@ -56,6 +56,7 @@ def _load_hub_context(target_date: str) -> dict:
     d = date_cls.fromisoformat(target_date)
     return {
         "target_date": target_date,
+        "target_weekday": WEEKDAY_SHORT[d.weekday()],
         "is_today": target_date == today_iso,
         "today": today_iso,
         "prev_date": (d - timedelta(days=1)).isoformat(),
@@ -161,6 +162,16 @@ async def save_checkin(request: Request):
                 (target_date, h["id"], json.dumps(value), int(done)),
             )
 
+    return RedirectResponse(f"/checkin?date={target_date}", status_code=303)
+
+
+@router.post("/checkin/reset")
+async def reset_checkin(request: Request):
+    form = await request.form()
+    target_date = _parse_date(form.get("date"))
+    with connect() as conn:
+        # ON DELETE CASCADE on habit_entries(checkin_date) wipes that day's entries.
+        conn.execute("DELETE FROM checkins WHERE date = ?", (target_date,))
     return RedirectResponse(f"/checkin?date={target_date}", status_code=303)
 
 

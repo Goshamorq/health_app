@@ -7,6 +7,7 @@ ALL_PILLARS = (*SCORED_PILLARS, "other")
 
 STEPS_BUCKETS = ("<5k", "5-7k", "7-10k", "10-15k", "15k+")
 WATER_BUCKETS = ("<1", "1-1.5", "1.5-2", "2+")
+WEEKDAY_SHORT = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
 def _parse_int(s, default=None):

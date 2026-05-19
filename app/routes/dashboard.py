@@ -6,13 +6,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
-from app.scoring import daily_score, other_score, streaks_for_active_habits
+from app.scoring import WEEKDAY_SHORT, daily_score, other_score, streaks_for_active_habits
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
 router = APIRouter()
-
-WEEKDAY_SHORT = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
 def _score_band(score: int) -> str:
@@ -81,6 +79,7 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
             week.append({
                 "date": d_iso,
                 "weekday": WEEKDAY_SHORT[d.weekday()],
+                "day_of_month": d.day,
                 "score": s["total"],
                 "band": _score_band(s["total"]),
                 "is_viewed": d_iso == target_date,

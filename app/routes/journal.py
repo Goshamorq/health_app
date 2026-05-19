@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
+from app.scoring import WEEKDAY_SHORT
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
@@ -244,11 +245,20 @@ def goals_delete(goal_id: int):
 
 def _load_trigger_entries(conn, limit: int = 30) -> list[dict]:
     rows = conn.execute(
-        "SELECT id, datetime(ts, 'localtime') AS ts, text, tag "
+        "SELECT id, datetime(ts, 'localtime') AS ts, "
+        "date(ts, 'localtime') AS local_date, text, tag "
         "FROM trigger_entries ORDER BY id DESC LIMIT ?",
         (limit,),
     ).fetchall()
-    return [dict(r) for r in rows]
+    out: list[dict] = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["weekday"] = WEEKDAY_SHORT[date_cls.fromisoformat(d["local_date"]).weekday()]
+        except (ValueError, TypeError):
+            d["weekday"] = ""
+        out.append(d)
+    return out
 
 
 @router.get("/journal/triggers", response_class=HTMLResponse)
@@ -323,7 +333,15 @@ def _load_notes(conn, limit: int = 90) -> list[dict]:
         "ORDER BY date DESC LIMIT ?",
         (limit,),
     ).fetchall()
-    return [dict(r) for r in rows]
+    out: list[dict] = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["weekday"] = WEEKDAY_SHORT[date_cls.fromisoformat(d["date"]).weekday()]
+        except (ValueError, TypeError):
+            d["weekday"] = ""
+        out.append(d)
+    return out
 
 
 @router.get("/journal/notes", response_class=HTMLResponse)
