@@ -604,11 +604,45 @@ fieldset legend {
 }
 
 .heatmap {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 4px;
     margin-top: 12px;
 }
+/* Absolutely-positioned background layer spans the full heatmap height
+   (date strip + 4 pillar rows + any expanded drilldowns). Renders weekend
+   stripes behind the columns and a 1px line at month boundaries that
+   visually crosses every row. Sits below cells via z-index. */
+.heatmap-bg {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 92px;          /* matches 80px label + 12px gap on every row */
+    display: flex;
+    gap: 2px;
+    pointer-events: none;
+    z-index: 0;
+}
+.heatmap-bg-col {
+    width: 14px;
+    flex-shrink: 0;
+}
+.heatmap-bg-col.is-weekend { background: rgb(100 116 139 / 0.14); }
+.heatmap-bg .heatmap-month-divider {
+    width: 1px;
+    background: var(--muted);
+    align-self: stretch;
+    flex-shrink: 0;
+}
+/* Same divider element renders inside cell rows (date / pillar / habit) as
+   an invisible spacer so columns line up with the bg layer. */
+.heatmap-month-divider {
+    width: 1px;
+    flex-shrink: 0;
+    align-self: stretch;
+}
+/* Foreground rows sit above the bg. */
+.heatmap-dates-row, .heatmap-pillar { position: relative; z-index: 1; }
 .heatmap-dates-row {
     display: flex;
     align-items: end;
@@ -647,24 +681,11 @@ fieldset legend {
     gap: 2px;
     flex: 1;
 }
-/* Weekend tint on EMPTY pillar cells + miss habit cells. Colored cells keep
-   their pillar hue — the data signal dominates. */
-.heatmap-cell.is-weekend.level-0 { background: rgb(100 116 139 / 0.18); }
-.heatmap-cell.is-habit.is-weekend.miss { background: rgb(100 116 139 / 0.18); }
-.heatmap-date-cell.is-weekend { background: rgb(100 116 139 / 0.18); }
-/* Month-boundary: small gap + a thin 1px line in muted slate so it reads as
-   a divider, not as another tint band. Applied to all cell variants
-   (date / pillar / habit) so the column shift stays aligned. */
-.heatmap-cell.is-month-start,
-.heatmap-date-cell.is-month-start {
-    margin-left: 4px;
-    box-shadow: -1px 0 0 var(--muted);
-}
 .heatmap-cell {
     width: 14px;
     height: 14px;
     border-radius: 2px;
-    background: var(--surface-2);
+    background: transparent;
     flex-shrink: 0;
     transition: transform 100ms ease;
     border: 1px solid transparent;
@@ -705,7 +726,7 @@ fieldset legend {
 .heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.30); }
 .heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.30); }
 .heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.30); }
-.heatmap-cell.is-habit.miss { background: var(--surface-2); }
+.heatmap-cell.is-habit.miss { background: transparent; }
 
 .heatmap-pillar { display: flex; flex-direction: column; gap: 3px; }
 .heatmap-pillar-toggle {

@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git -c user.name=Goshamorq -c user.email=goshamorq@yandex.ru commit -m ' *)"
+      "Bash(git -c user.name=Goshamorq -c user.email=goshamorq@yandex.ru commit -m ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8765/)"
     ]
   }
 }
