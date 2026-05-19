@@ -634,7 +634,7 @@ fieldset legend {
 .heatmap-bg-col.is-weekend::before {
     content: "";
     position: absolute;
-    inset: 0 -2px;
+    inset: 0 -1px;
     background: rgb(100 116 139 / 0.14);
 }
 /* Active (viewed) column: one big rounded contour spanning the full
