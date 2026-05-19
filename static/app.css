@@ -685,7 +685,8 @@ fieldset legend {
     width: 14px;
     height: 14px;
     border-radius: 2px;
-    background: transparent;
+    background: rgb(100 116 139 / 0.10);  /* faint slate so empty cells read
+                                              on both white and weekend bg */
     flex-shrink: 0;
     transition: transform 100ms ease;
     border: 1px solid transparent;
@@ -726,7 +727,7 @@ fieldset legend {
 .heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.30); }
 .heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.30); }
 .heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.30); }
-.heatmap-cell.is-habit.miss { background: transparent; }
+.heatmap-cell.is-habit.miss { background: rgb(100 116 139 / 0.10); }
 
 .heatmap-pillar { display: flex; flex-direction: column; gap: 3px; }
 .heatmap-pillar-toggle {
