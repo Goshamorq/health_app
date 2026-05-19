@@ -1,19 +1,42 @@
 {% if entries %}
 <ul class="trigger-list">
     {% for e in entries %}
-    <li class="trigger-row">
-        <div class="trigger-meta">
-            <span class="trigger-ts">{{ e.ts }}</span>
-            <span class="trigger-tag tag-{{ e.tag }}">{{ e.tag }}</span>
+    <li class="trigger-row" x-data="{editing: false}">
+        <div class="trigger-row-view" x-show="!editing">
+            <div class="trigger-meta">
+                <span class="trigger-ts">{{ e.ts }}</span>
+                <span class="trigger-tag tag-{{ e.tag }}">{{ e.tag }}</span>
+            </div>
+            <p class="trigger-text">{{ e.text }}</p>
+            <div class="trigger-actions">
+                <button type="button" class="trigger-edit" aria-label="Edit entry"
+                        @click="editing = true">✎</button>
+                <button type="button" class="trigger-delete" aria-label="Delete entry"
+                        hx-delete="/trigger/{{ e.id }}"
+                        hx-target="#trigger-list"
+                        hx-swap="innerHTML"
+                        hx-confirm="Delete this entry?">×</button>
+            </div>
         </div>
-        <p class="trigger-text">{{ e.text }}</p>
-        <button type="button"
-                hx-delete="/trigger/{{ e.id }}"
-                hx-target="#trigger-list"
-                hx-swap="innerHTML"
-                hx-confirm="Delete this entry?"
-                class="trigger-delete"
-                aria-label="Delete entry">×</button>
+
+        <form class="trigger-edit-form" x-show="editing" x-cloak
+              hx-post="/trigger/{{ e.id }}/edit"
+              hx-target="#trigger-list"
+              hx-swap="innerHTML">
+            <textarea name="text" rows="3" required maxlength="2000">{{ e.text }}</textarea>
+            <div class="trigger-edit-row">
+                <select name="tag" required>
+                    {% for t in allowed_tags %}
+                    <option value="{{ t }}" {% if t == e.tag %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+                <span class="trigger-ts">{{ e.ts }}</span>
+            </div>
+            <div class="trigger-edit-actions">
+                <button type="submit" class="primary">Save</button>
+                <button type="button" class="btn-ghost" @click="editing = false">Cancel</button>
+            </div>
+        </form>
     </li>
     {% endfor %}
 </ul>

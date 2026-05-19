@@ -828,13 +828,15 @@ fieldset legend {
     margin-top: 8px;
 }
 .trigger-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas: "meta text delete";
-    gap: 8px 16px;
     padding: 12px 14px;
     background: var(--surface-2);
     border-radius: var(--radius-sm);
+}
+.trigger-row-view {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "meta text actions";
+    gap: 8px 16px;
     align-items: start;
 }
 .trigger-meta { grid-area: meta; display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
@@ -865,22 +867,37 @@ fieldset legend {
     margin: 0;
     white-space: pre-wrap;
 }
-.trigger-delete {
-    grid-area: delete;
+.trigger-actions { grid-area: actions; display: flex; gap: 4px; align-items: start; }
+.trigger-edit, .trigger-delete {
     background: transparent;
     border: 1px solid transparent;
     color: var(--muted);
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1;
     padding: 4px 8px;
     border-radius: var(--radius-sm);
-    align-self: start;
 }
+.trigger-edit:hover {
+    color: var(--accent);
+    border-color: var(--border);
+    background: var(--surface);
+}
+.trigger-delete { font-size: 18px; }
 .trigger-delete:hover {
     color: var(--bad);
     border-color: var(--border);
     background: var(--surface);
 }
+.trigger-edit-form { display: flex; flex-direction: column; gap: 8px; }
+.trigger-edit-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.trigger-edit-row select { max-width: 200px; }
+.trigger-edit-row .trigger-ts { margin-left: auto; }
+.trigger-edit-actions { display: flex; gap: 8px; }
 
 /* === Settings === */
 .settings-section { margin-bottom: 16px; }

@@ -47,7 +47,29 @@ async def trigger_post(request: Request,
             (text, tag),
         )
         entries = _load_entries(conn)
-    return templates.TemplateResponse(request, "_trigger_list.html", {"entries": entries})
+    return templates.TemplateResponse(request, "_trigger_list.html",
+                                       {"entries": entries, "allowed_tags": ALLOWED_TAGS})
+
+
+@router.post("/trigger/{entry_id}/edit", response_class=HTMLResponse)
+async def trigger_edit(request: Request, entry_id: int,
+                        text: str = Form(...),
+                        tag: str = Form(...)) -> HTMLResponse:
+    text = text.strip()
+    if not text:
+        raise HTTPException(400, "text required")
+    if tag not in ALLOWED_TAGS:
+        raise HTTPException(400, f"invalid tag: {tag}")
+    with connect() as conn:
+        cur = conn.execute(
+            "UPDATE trigger_entries SET text = ?, tag = ? WHERE id = ?",
+            (text, tag, entry_id),
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(404, "entry not found")
+        entries = _load_entries(conn)
+    return templates.TemplateResponse(request, "_trigger_list.html",
+                                       {"entries": entries, "allowed_tags": ALLOWED_TAGS})
 
 
 @router.delete("/trigger/{entry_id}", response_class=HTMLResponse)
@@ -57,4 +79,5 @@ def trigger_delete(request: Request, entry_id: int) -> HTMLResponse:
         if cur.rowcount == 0:
             raise HTTPException(404, "entry not found")
         entries = _load_entries(conn)
-    return templates.TemplateResponse(request, "_trigger_list.html", {"entries": entries})
+    return templates.TemplateResponse(request, "_trigger_list.html",
+                                       {"entries": entries, "allowed_tags": ALLOWED_TAGS})
