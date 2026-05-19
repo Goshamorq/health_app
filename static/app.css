@@ -630,9 +630,11 @@ fieldset legend {
 .heatmap-bg-col.is-weekend { background: rgb(100 116 139 / 0.14); }
 /* Active (viewed) column: one big rounded contour spanning the full
    heatmap height — dates strip, every pillar row, and every open
-   drilldown row. */
+   drilldown row. Drawn OUTSIDE the column so it doesn't crop the
+   cells inside; outline-offset gives a few px of breathing room. */
 .heatmap-bg-col.is-viewed {
-    box-shadow: inset 0 0 0 1.5px var(--muted);
+    outline: 1px solid var(--muted);
+    outline-offset: 3px;
     border-radius: 6px;
 }
 .heatmap-bg .heatmap-month-divider {
