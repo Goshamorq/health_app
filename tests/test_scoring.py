@@ -109,9 +109,23 @@ def test_mixed_math(conn):
     assert result["total"] == 42
 
 
-def test_habit_created_after_target_date_excluded(conn):
+def test_future_created_habit_without_entry_is_excluded(conn):
+    # No habit_entries on target_date AND created_at > target_date → excluded.
+    _add_habit(conn, "sleep", "future", created_at="2026-06-01")
+    assert daily_score(conn, "2026-05-15")["by_pillar"]["sleep"] == 0
+
+
+def test_future_created_habit_with_backfilled_entry_counts(conn):
+    # User created a habit today and retro-logged a past date — that day counts.
     h = _add_habit(conn, "sleep", "future", created_at="2026-06-01")
     _set_entry(conn, "2026-05-15", h, True)
+    assert daily_score(conn, "2026-05-15")["by_pillar"]["sleep"] == 100
+
+
+def test_future_created_habit_backfilled_miss_counts_as_slot(conn):
+    # Backfilled entry with done=0 still adds a slot to the denominator.
+    h = _add_habit(conn, "sleep", "future", created_at="2026-06-01")
+    _set_entry(conn, "2026-05-15", h, False)
     assert daily_score(conn, "2026-05-15")["by_pillar"]["sleep"] == 0
 
 

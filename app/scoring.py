@@ -118,9 +118,9 @@ def daily_score(conn: sqlite3.Connection, target_date: str, settings: dict | Non
                LEFT JOIN habit_entries he
                  ON he.habit_id = h.id AND he.checkin_date = ?
                WHERE h.archived = 0
-                 AND date(h.created_at) <= ?
-                 AND h.pillar = ?""",
-            (target_date, target_date, pillar),
+                 AND h.pillar = ?
+                 AND (date(h.created_at) <= ? OR he.checkin_date IS NOT NULL)""",
+            (target_date, pillar, target_date),
         ).fetchone()
         active = row["active"] or 0
         done = row["done"] or 0
@@ -149,8 +149,8 @@ def other_score(conn: sqlite3.Connection, target_date: str) -> dict:
            LEFT JOIN habit_entries he
              ON he.habit_id = h.id AND he.checkin_date = ?
            WHERE h.archived = 0
-             AND date(h.created_at) <= ?
-             AND h.pillar = 'other'""",
+             AND h.pillar = 'other'
+             AND (date(h.created_at) <= ? OR he.checkin_date IS NOT NULL)""",
         (target_date, target_date),
     ).fetchone()
     active = row["active"] or 0
@@ -180,7 +180,15 @@ def streak(conn: sqlite3.Connection, habit_id: int, today: str,
     ).fetchone()
     if h is None:
         return 0
+    # Walk floor: min(created_at, oldest backfilled entry) so retro-logging
+    # past dates extends the reachable streak.
+    oldest_entry = conn.execute(
+        "SELECT MIN(checkin_date) AS d FROM habit_entries WHERE habit_id = ?",
+        (habit_id,),
+    ).fetchone()["d"]
     earliest = h["d"]
+    if oldest_entry is not None and oldest_entry < earliest:
+        earliest = oldest_entry
 
     days = 0
     seen_done = False
