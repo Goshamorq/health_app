@@ -70,6 +70,13 @@ async def thresholds_post(request: Request):
     sleep_min = _parse_float_clamp(form.get("sleep_min_hours"), 0, 14)
     sleep_max = _parse_float_clamp(form.get("sleep_max_hours"), 0, 14)
 
+    raw_bedtime_std = form.get("sleep_bedtime_std_max_min")
+    bedtime_std = "" if raw_bedtime_std in (None, "") else str(
+        _parse_int_clamp(raw_bedtime_std, 0, 240, 30))
+    raw_bedtime_samp = form.get("sleep_min_bedtime_samples")
+    bedtime_samp = "" if raw_bedtime_samp in (None, "") else str(
+        _parse_int_clamp(raw_bedtime_samp, 1, 7, 4))
+
     raw_steps = form.get("steps_min_bucket")
     steps_min = "" if raw_steps in (None, "") else str(
         _parse_int_clamp(raw_steps, 0, len(STEPS_BUCKETS) - 1, 0))
@@ -85,6 +92,8 @@ async def thresholds_post(request: Request):
     with connect() as conn:
         _upsert(conn, "sleep_min_hours", sleep_min)
         _upsert(conn, "sleep_max_hours", sleep_max)
+        _upsert(conn, "sleep_bedtime_std_max_min", bedtime_std)
+        _upsert(conn, "sleep_min_bedtime_samples", bedtime_samp)
         _upsert(conn, "steps_min_bucket", steps_min)
         _upsert(conn, "water_min_bucket", water_min)
         _upsert(conn, "meals_min_count", meals_min)

@@ -1,4 +1,5 @@
 import sqlite3
+import statistics
 from datetime import date as date_cls, timedelta
 
 SCORED_PILLARS = ("sleep", "sport", "food")
@@ -26,9 +27,52 @@ def _parse_float(s, default=None):
         return default
 
 
-def _signal_slots(pillar: str, settings: dict, checkin_row) -> list[bool]:
+def _bedtime_to_minutes(s) -> float | None:
+    """HH:MM → minutes since midnight, with 00:00-11:59 shifted +24h so that
+    late-night bedtimes (23:30, 00:30) sit on a continuous scale."""
+    if not s:
+        return None
+    try:
+        hh, mm = str(s).split(":")
+        m = int(hh) * 60 + int(mm)
+    except (ValueError, AttributeError, TypeError):
+        return None
+    if m < 12 * 60:
+        m += 24 * 60
+    return float(m)
+
+
+def _bedtime_regularity(conn: sqlite3.Connection, target_date: str, settings: dict) -> bool | None:
+    """True if std-dev of bedtimes in last 7 days ≤ threshold AND ≥ min_samples
+    were logged. Returns None when the signal is disabled (threshold unset or
+    too few samples to judge)."""
+    std_max = _parse_float(settings.get("sleep_bedtime_std_max_min"))
+    min_samp = _parse_int(settings.get("sleep_min_bedtime_samples"))
+    if std_max is None or min_samp is None:
+        return None
+    end = date_cls.fromisoformat(target_date)
+    start = end - timedelta(days=6)
+    rows = conn.execute(
+        "SELECT bedtime FROM checkins "
+        "WHERE date BETWEEN ? AND ? AND bedtime IS NOT NULL AND bedtime != ''",
+        (start.isoformat(), end.isoformat()),
+    ).fetchall()
+    times: list[float] = []
+    for r in rows:
+        m = _bedtime_to_minutes(r["bedtime"])
+        if m is not None:
+            times.append(m)
+    if len(times) < min_samp:
+        return None
+    return statistics.pstdev(times) <= std_max
+
+
+def _signal_slots(pillar: str, settings: dict, checkin_row,
+                  bedtime_regular: bool | None = None) -> list[bool]:
     """For each ENABLED core signal in this pillar, return whether it's met.
-    A signal is enabled only when its settings threshold parses to a valid value."""
+    A signal is enabled only when its settings threshold parses to a valid value.
+    For sleep, `bedtime_regular` is a pre-computed True/False/None — None means
+    the regularity signal is disabled and no slot is added."""
     slots: list[bool] = []
     if pillar == "sleep":
         mn = _parse_float(settings.get("sleep_min_hours"))
@@ -36,6 +80,8 @@ def _signal_slots(pillar: str, settings: dict, checkin_row) -> list[bool]:
         if mn is not None and mx is not None and mn <= mx:
             sh = checkin_row["sleep_hours"] if checkin_row is not None and checkin_row["sleep_hours"] is not None else None
             slots.append(sh is not None and mn <= sh <= mx)
+        if bedtime_regular is not None:
+            slots.append(bedtime_regular)
     elif pillar == "sport":
         thr = _parse_int(settings.get("steps_min_bucket"))
         if thr is not None and 0 <= thr < len(STEPS_BUCKETS):
@@ -61,6 +107,7 @@ def daily_score(conn: sqlite3.Connection, target_date: str, settings: dict | Non
     The 'other' pillar is excluded from totals — query separately via other_score()."""
     settings = settings or {}
     checkin_row = conn.execute("SELECT * FROM checkins WHERE date = ?", (target_date,)).fetchone()
+    bedtime_regular = _bedtime_regularity(conn, target_date, settings)
     by_pillar: dict[str, int] = {}
     pillars_with_data: list[str] = []
     for pillar in SCORED_PILLARS:
@@ -77,7 +124,7 @@ def daily_score(conn: sqlite3.Connection, target_date: str, settings: dict | Non
         ).fetchone()
         active = row["active"] or 0
         done = row["done"] or 0
-        signals = _signal_slots(pillar, settings, checkin_row)
+        signals = _signal_slots(pillar, settings, checkin_row, bedtime_regular=bedtime_regular)
         denom = active + len(signals)
         numer = done + sum(1 for s in signals if s)
         if denom > 0:

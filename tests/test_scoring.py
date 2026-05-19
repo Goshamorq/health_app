@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date as date_cls, timedelta
 from pathlib import Path
 
 import pytest
@@ -263,6 +264,67 @@ def test_other_score_buckets():
         return 3
     for pct, expected in cases:
         assert stars(pct) == expected
+
+
+# ============ Sleep regularity (bedtime std-dev) ============
+
+REGULARITY_SETTINGS = {
+    "sleep_bedtime_std_max_min": "30",
+    "sleep_min_bedtime_samples": "4",
+}
+
+
+def test_regularity_disabled_when_too_few_samples(conn):
+    for i in range(2):
+        d = (date_cls(2026, 5, 15) - timedelta(days=i)).isoformat()
+        _set_checkin(conn, d, bedtime="23:00")
+    # Only 2 samples < threshold 4 → signal disabled. No habits → pillar = 0%
+    result = daily_score(conn, "2026-05-15", REGULARITY_SETTINGS)
+    assert result["by_pillar"]["sleep"] == 0
+
+
+def test_regularity_consistent_bedtimes_met(conn):
+    # 4 nights all at 23:00 — std=0 ≤ 30
+    for i in range(4):
+        d = (date_cls(2026, 5, 15) - timedelta(days=i)).isoformat()
+        _set_checkin(conn, d, bedtime="23:00")
+    result = daily_score(conn, "2026-05-15", REGULARITY_SETTINGS)
+    assert result["by_pillar"]["sleep"] == 100  # 1 of 1 slot
+
+
+def test_regularity_inconsistent_bedtimes_not_met(conn):
+    # Bedtimes vary by ±2 hours — std way > 30 min
+    for i, t in enumerate(["22:00", "01:00", "23:00", "00:30"]):
+        d = (date_cls(2026, 5, 15) - timedelta(days=i)).isoformat()
+        _set_checkin(conn, d, bedtime=t)
+    result = daily_score(conn, "2026-05-15", REGULARITY_SETTINGS)
+    # signal slot exists but not met → 0/1 = 0%
+    assert result["by_pillar"]["sleep"] == 0
+
+
+def test_regularity_wraparound_around_midnight(conn):
+    # 23:30 / 00:00 / 00:30 / 23:45 — all within 60 minutes when wrapped
+    for i, t in enumerate(["23:30", "00:00", "00:30", "23:45"]):
+        d = (date_cls(2026, 5, 15) - timedelta(days=i)).isoformat()
+        _set_checkin(conn, d, bedtime=t)
+    result = daily_score(conn, "2026-05-15", REGULARITY_SETTINGS)
+    # wraparound puts these on a 23:30..00:30 continuous scale; std ≤ 30
+    assert result["by_pillar"]["sleep"] == 100
+
+
+def test_regularity_adds_second_slot_alongside_duration(conn):
+    # both signals enabled, both met → pillar = 100%
+    for i in range(4):
+        d = (date_cls(2026, 5, 15) - timedelta(days=i)).isoformat()
+        _set_checkin(conn, d, sleep_hours=8.0, bedtime="23:00")
+    combined = {**SETTINGS_FULL, **REGULARITY_SETTINGS}
+    result = daily_score(conn, "2026-05-15", combined)
+    assert result["by_pillar"]["sleep"] == 100
+
+    # break one: bedtime varies → 1 of 2 = 50%
+    _set_checkin(conn, "2026-05-15", bedtime="04:00")  # outlier
+    result2 = daily_score(conn, "2026-05-15", combined)
+    assert result2["by_pillar"]["sleep"] == 50
 
 
 # ============ Streaks ============

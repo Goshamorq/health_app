@@ -70,6 +70,8 @@ def list_habits(request: Request) -> HTMLResponse:
     s = {r["key"]: r["value"] for r in settings_rows}
     ctx["sleep_min_hours"] = s.get("sleep_min_hours", "")
     ctx["sleep_max_hours"] = s.get("sleep_max_hours", "")
+    ctx["sleep_bedtime_std_max_min"] = s.get("sleep_bedtime_std_max_min", "")
+    ctx["sleep_min_bedtime_samples"] = s.get("sleep_min_bedtime_samples", "")
     ctx["steps_min_bucket"] = s.get("steps_min_bucket", "")
     ctx["water_min_bucket"] = s.get("water_min_bucket", "")
     ctx["meals_min_count"] = s.get("meals_min_count", "")

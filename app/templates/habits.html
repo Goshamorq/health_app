@@ -92,6 +92,19 @@
                            value="{{ sleep_max_hours }}">
                 </label>
             </div>
+            <p class="muted" style="font-size: 13px; margin-top: 12px;">Regular bedtime — std-dev of bedtimes over the last 7 days within this many minutes counts as a second signal. Needs at least N samples in the window to judge.</p>
+            <div class="row" style="gap: 12px;">
+                <label class="field" style="max-width: 200px;">
+                    Bedtime std-dev max (minutes)
+                    <input type="number" name="sleep_bedtime_std_max_min" min="0" max="240" step="5"
+                           value="{{ sleep_bedtime_std_max_min }}">
+                </label>
+                <label class="field" style="max-width: 200px;">
+                    Min samples in last 7
+                    <input type="number" name="sleep_min_bedtime_samples" min="1" max="7" step="1"
+                           value="{{ sleep_min_bedtime_samples }}">
+                </label>
+            </div>
 
             <h3 class="threshold-subhead">Sport</h3>
             <p class="muted" style="font-size: 13px;">Steps at the selected bucket or higher count as one met signal.</p>
