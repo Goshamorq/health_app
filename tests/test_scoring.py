@@ -385,25 +385,24 @@ def test_streak_classic_breaks_on_any_miss(conn):
 def test_streak_forgiveness_allows_one_miss(conn):
     h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
     _seed_streak(conn, h, "2026-05-15", "DDMDDDD")  # 1 miss at -2 in last 7
-    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 7
+    # 6 done days in the run; the M doesn't count toward the streak number
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 6
 
 
 def test_streak_forgiveness_breaks_on_two_misses_within_7(conn):
     h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
     _seed_streak(conn, h, "2026-05-15", "DDMDMDD")  # 2 misses (at -2 and -4) in last 7
-    # walking from today, on the 5th step (the second M at -4), window has 2 misses → break
-    # So streak = 4 (today, -1, -2 miss, -3) — wait, -2 is the first miss; chain
-    # passes it. -4 is the second; chain breaks AT -4. Days counted = today through -3 = 4.
-    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 4
+    # walk: D D M(no incr, miss=1) D M(window misses=2 → break). Done count = 3.
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 3
 
 
 def test_streak_spreads_misses_across_weeks_allowed(conn):
     h = _add_habit(conn, "sleep", "habit", created_at="2026-04-01")
     # Pattern: today through day-13, with misses at -3 (week 1) and -10 (week 2)
-    pattern = "DDDM" + "DDDDDD" + "M" + "DDD"  # 14 chars
+    pattern = "DDDM" + "DDDDDD" + "M" + "DDD"  # 14 chars, 12 D's
     _seed_streak(conn, h, "2026-05-15", pattern)
-    # Each rolling-7 window has at most 1 miss → forgiveness=1 allows both → full 14
-    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 14
+    # Each rolling-7 window has at most 1 miss → chain doesn't break → 12 done days
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 12
 
 
 def test_streak_bounded_by_habit_creation_date(conn):
@@ -413,19 +412,28 @@ def test_streak_bounded_by_habit_creation_date(conn):
     assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 3
 
 
-def test_streak_today_missing_breaks_classic(conn):
+def test_streak_today_missing_classic_shows_prior_run(conn):
     h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
     _seed_streak(conn, h, "2026-05-15", "_DDDD")  # no entry today; done -1..-4
-    # classic mode: window=[miss], misses=1>0 → break immediately
-    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=0) == 0
+    # With new semantics, streak walks from the most recent done day (-1) backward,
+    # counting 4 done days. Today's miss doesn't penalize the past run.
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=0) == 4
 
 
 def test_streak_today_missing_forgiven(conn):
     h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
-    # today miss (forgiven), 2 done, then a miss at -3 — window holds both misses → break
+    # today miss (skipped), -1=D start, -2=D, -3=M (no incr, miss=1)
     _seed_streak(conn, h, "2026-05-15", "_DDM")
-    # streak = today..-2 = 3 days
-    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 3
+    # walk from -1: D(1), D(2), M(miss=1, no incr), then next day (-4 in pattern,
+    # no entry) is also a miss → window misses=2 → break. Done count = 2.
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 2
+
+
+def test_streak_only_one_done_day(conn):
+    """User's reported case: filled 1 day → streak shows 1, not 2 via forgiveness."""
+    h = _add_habit(conn, "sleep", "habit", created_at="2026-05-01")
+    _seed_streak(conn, h, "2026-05-15", "_D")  # today miss, yesterday done; nothing else
+    assert streak(conn, h, "2026-05-15", allowed_misses_per_7=1) == 1
 
 
 def test_streak_unknown_habit_returns_zero(conn):

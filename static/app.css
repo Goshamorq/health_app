@@ -641,30 +641,36 @@ fieldset legend {
     z-index: 1;
     position: relative;
 }
-.heatmap-cell.pillar-sleep.level-1 { background: rgb(var(--pillar-sleep) / 0.30); }
-.heatmap-cell.pillar-sleep.level-2 { background: rgb(var(--pillar-sleep) / 0.60); }
+/* Pillar (summary) cells — fuller hues */
+.heatmap-cell.pillar-sleep.level-1 { background: rgb(var(--pillar-sleep) / 0.45); }
+.heatmap-cell.pillar-sleep.level-2 { background: rgb(var(--pillar-sleep) / 0.75); }
 .heatmap-cell.pillar-sleep.level-3 { background: rgb(var(--pillar-sleep) / 1.00); }
-.heatmap-cell.pillar-sport.level-1 { background: rgb(var(--pillar-sport) / 0.30); }
-.heatmap-cell.pillar-sport.level-2 { background: rgb(var(--pillar-sport) / 0.60); }
+.heatmap-cell.pillar-sport.level-1 { background: rgb(var(--pillar-sport) / 0.45); }
+.heatmap-cell.pillar-sport.level-2 { background: rgb(var(--pillar-sport) / 0.75); }
 .heatmap-cell.pillar-sport.level-3 { background: rgb(var(--pillar-sport) / 1.00); }
-.heatmap-cell.pillar-food.level-1  { background: rgb(var(--pillar-food)  / 0.30); }
-.heatmap-cell.pillar-food.level-2  { background: rgb(var(--pillar-food)  / 0.60); }
+.heatmap-cell.pillar-food.level-1  { background: rgb(var(--pillar-food)  / 0.45); }
+.heatmap-cell.pillar-food.level-2  { background: rgb(var(--pillar-food)  / 0.75); }
 .heatmap-cell.pillar-food.level-3  { background: rgb(var(--pillar-food)  / 1.00); }
-.heatmap-cell.pillar-other.level-1 { background: rgb(var(--pillar-other) / 0.30); }
-.heatmap-cell.pillar-other.level-2 { background: rgb(var(--pillar-other) / 0.60); }
+.heatmap-cell.pillar-other.level-1 { background: rgb(var(--pillar-other) / 0.45); }
+.heatmap-cell.pillar-other.level-2 { background: rgb(var(--pillar-other) / 0.75); }
 .heatmap-cell.pillar-other.level-3 { background: rgb(var(--pillar-other) / 1.00); }
 .heatmap-cell.is-viewed {
-    outline: 2px solid var(--text);
+    outline: 1px solid var(--text);
     outline-offset: 1px;
     z-index: 1;
 }
 
-/* Habit-row cells in drilldown: binary, deemed (max 0.5 of pillar hue) */
-.heatmap-cell.is-habit { width: 11px; height: 11px; }
-.heatmap-cell.is-habit.pillar-sleep.done { background: rgb(var(--pillar-sleep) / 0.5); }
-.heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.5); }
-.heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.5); }
-.heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.5); }
+/* Habit-row cells: layout box stays 14×14 (so columns align with the pillar
+   row), but the visual block is shrunk to ~10×10 via transform: scale. */
+.heatmap-cell.is-habit {
+    transform: scale(0.72);
+    transform-origin: center;
+}
+.heatmap-cell.is-habit:hover { transform: scale(1.1); }
+.heatmap-cell.is-habit.pillar-sleep.done { background: rgb(var(--pillar-sleep) / 0.30); }
+.heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.30); }
+.heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.30); }
+.heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.30); }
 .heatmap-cell.is-habit.miss { background: var(--surface-2); }
 
 .heatmap-pillar { display: flex; flex-direction: column; gap: 3px; }
@@ -680,7 +686,8 @@ fieldset legend {
     display: flex;
     align-items: center;
     gap: 4px;
-    min-width: 60px;
+    width: 80px;
+    flex-shrink: 0;
     user-select: none;
 }
 .heatmap-pillar-toggle:hover { color: var(--text); }
@@ -691,13 +698,13 @@ fieldset legend {
 .heatmap-habit-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding-left: 60px;
+    gap: 12px;
 }
 .heatmap-habit-name {
-    font-size: 11px;
+    width: 80px;
+    flex-shrink: 0;
+    font-size: 10px;
     color: var(--muted);
-    min-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

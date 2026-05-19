@@ -169,19 +169,18 @@ def other_score(conn: sqlite3.Connection, target_date: str) -> dict:
 
 def streak(conn: sqlite3.Connection, habit_id: int, today: str,
            allowed_misses_per_7: int = 0) -> int:
-    """Days of current streak walking back from `today`. Forgiveness:
-    at each walking step, the rolling 7-day window of last walked days
-    may contain up to `allowed_misses_per_7` misses; once that count is
-    exceeded the streak ends. A miss is `done=0` or no habit_entries row.
-    Set allowed_misses_per_7=0 for classic (any miss breaks)."""
+    """Count of DONE days in the current run. The run starts at the most
+    recent done day (today, or earlier if today isn't done) and walks
+    backward. Within the run, up to `allowed_misses_per_7` misses can
+    appear in any rolling 7-day window without breaking the chain; missed
+    days don't increment the count. A miss is `done=0` or no habit_entries
+    row. Returns 0 if the habit was never done."""
     h = conn.execute(
         "SELECT date(created_at) AS d FROM habits WHERE id = ?",
         (habit_id,),
     ).fetchone()
     if h is None:
         return 0
-    # Walk floor: min(created_at, oldest backfilled entry) so retro-logging
-    # past dates extends the reachable streak.
     oldest_entry = conn.execute(
         "SELECT MIN(checkin_date) AS d FROM habit_entries WHERE habit_id = ?",
         (habit_id,),
@@ -190,10 +189,22 @@ def streak(conn: sqlite3.Connection, habit_id: int, today: str,
     if oldest_entry is not None and oldest_entry < earliest:
         earliest = oldest_entry
 
-    days = 0
-    seen_done = False
-    window: list[bool] = []  # True = miss; newest at front
+    # 1) Locate the most recent done day (today or earlier).
     d = date_cls.fromisoformat(today)
+    while d.isoformat() >= earliest:
+        row = conn.execute(
+            "SELECT done FROM habit_entries WHERE habit_id = ? AND checkin_date = ?",
+            (habit_id, d.isoformat()),
+        ).fetchone()
+        if row is not None and bool(row["done"]):
+            break
+        d -= timedelta(days=1)
+    if d.isoformat() < earliest:
+        return 0  # never done
+
+    # 2) Walk back from that day, counting done days within forgiveness budget.
+    days = 0
+    window: list[bool] = []
     while d.isoformat() >= earliest:
         row = conn.execute(
             "SELECT done FROM habit_entries WHERE habit_id = ? AND checkin_date = ?",
@@ -205,12 +216,10 @@ def streak(conn: sqlite3.Connection, habit_id: int, today: str,
             window.pop()
         if sum(1 for m in window if m) > allowed_misses_per_7:
             break
-        days += 1
         if not is_miss:
-            seen_done = True
+            days += 1
         d -= timedelta(days=1)
-    # Forgiveness shouldn't manufacture a streak out of pure inactivity.
-    return days if seen_done else 0
+    return days
 
 
 def streaks_for_active_habits(conn: sqlite3.Connection, today: str,
