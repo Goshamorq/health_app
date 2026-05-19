@@ -83,17 +83,46 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
                 "other_active": o["active"],
             })
 
-        # 30-day heatmap: 4 pillar rows × 30 day cells
+        # 30-day heatmap: pillar rows (4) + collapsible per-habit subrows
+        heatmap_dates = [(today - timedelta(days=o)).isoformat()
+                         for o in range(29, -1, -1)]
+
         heatmap_by_date = []
-        for offset in range(29, -1, -1):
-            d = today - timedelta(days=offset)
-            d_iso = d.isoformat()
+        for d_iso in heatmap_dates:
             s = daily_score(conn, d_iso, settings)
             o = other_score(conn, d_iso)
             heatmap_by_date.append({
                 "date": d_iso,
                 "by_pillar": {**s["by_pillar"], "other": o["pct"]},
             })
+
+        # Pre-fetch active habits + their entries over the 30-day window in 2 queries
+        habit_rows = conn.execute(
+            "SELECT id, pillar, name FROM habits "
+            "WHERE archived = 0 AND date(created_at) <= ? "
+            "ORDER BY pillar, id",
+            (heatmap_dates[-1],),
+        ).fetchall()
+        entry_rows = conn.execute(
+            "SELECT habit_id, checkin_date, done FROM habit_entries "
+            "WHERE checkin_date BETWEEN ? AND ?",
+            (heatmap_dates[0], heatmap_dates[-1]),
+        ).fetchall()
+        done_map = {(e["habit_id"], e["checkin_date"]): bool(e["done"]) for e in entry_rows}
+
+        habits_by_pillar: dict[str, list[dict]] = {"sleep": [], "sport": [], "food": [], "other": []}
+        for h in habit_rows:
+            cells = [{
+                "date": d_iso,
+                "done": done_map.get((h["id"], d_iso), False),
+                "is_viewed": d_iso == target_date,
+            } for d_iso in heatmap_dates]
+            habits_by_pillar[h["pillar"]].append({
+                "habit_id": h["id"],
+                "name": h["name"],
+                "cells": cells,
+            })
+
         heatmap_rows = []
         for pillar in ("sleep", "sport", "food", "other"):
             cells = [{
@@ -102,7 +131,11 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
                 "level": _heatmap_level(day["by_pillar"][pillar]),
                 "is_viewed": day["date"] == target_date,
             } for day in heatmap_by_date]
-            heatmap_rows.append({"pillar": pillar, "cells": cells})
+            heatmap_rows.append({
+                "pillar": pillar,
+                "cells": cells,
+                "habits": habits_by_pillar[pillar],
+            })
 
     show_yesterday_prompt = (
         is_today

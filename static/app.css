@@ -34,6 +34,11 @@
     --accent-soft: #D1FAE5;
     --warn: #F59E0B;
     --bad: #EF4444;
+    /* Pillar hues for heatmap (space-separated RGB so we can compose with alpha) */
+    --pillar-sleep: 100 116 139;   /* slate */
+    --pillar-sport: 59 130 246;    /* blue */
+    --pillar-food:  16 185 129;    /* emerald */
+    --pillar-other: 245 158 11;    /* amber */
     --radius: 12px;
     --radius-sm: 6px;
     --shadow: 0 2px 8px rgba(15, 23, 42, .06);
@@ -622,14 +627,68 @@ fieldset legend {
     z-index: 1;
     position: relative;
 }
-.heatmap-cell.level-1 { background: var(--bad); opacity: 0.7; }
-.heatmap-cell.level-2 { background: var(--warn); }
-.heatmap-cell.level-3 { background: var(--accent); }
+.heatmap-cell.pillar-sleep.level-1 { background: rgb(var(--pillar-sleep) / 0.30); }
+.heatmap-cell.pillar-sleep.level-2 { background: rgb(var(--pillar-sleep) / 0.60); }
+.heatmap-cell.pillar-sleep.level-3 { background: rgb(var(--pillar-sleep) / 1.00); }
+.heatmap-cell.pillar-sport.level-1 { background: rgb(var(--pillar-sport) / 0.30); }
+.heatmap-cell.pillar-sport.level-2 { background: rgb(var(--pillar-sport) / 0.60); }
+.heatmap-cell.pillar-sport.level-3 { background: rgb(var(--pillar-sport) / 1.00); }
+.heatmap-cell.pillar-food.level-1  { background: rgb(var(--pillar-food)  / 0.30); }
+.heatmap-cell.pillar-food.level-2  { background: rgb(var(--pillar-food)  / 0.60); }
+.heatmap-cell.pillar-food.level-3  { background: rgb(var(--pillar-food)  / 1.00); }
+.heatmap-cell.pillar-other.level-1 { background: rgb(var(--pillar-other) / 0.30); }
+.heatmap-cell.pillar-other.level-2 { background: rgb(var(--pillar-other) / 0.60); }
+.heatmap-cell.pillar-other.level-3 { background: rgb(var(--pillar-other) / 1.00); }
 .heatmap-cell.is-viewed {
     outline: 2px solid var(--text);
     outline-offset: 1px;
     z-index: 1;
 }
+
+/* Habit-row cells in drilldown: binary, deemed (max 0.5 of pillar hue) */
+.heatmap-cell.is-habit { width: 11px; height: 11px; }
+.heatmap-cell.is-habit.pillar-sleep.done { background: rgb(var(--pillar-sleep) / 0.5); }
+.heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.5); }
+.heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.5); }
+.heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.5); }
+.heatmap-cell.is-habit.miss { background: var(--surface-2); }
+
+.heatmap-pillar { display: flex; flex-direction: column; gap: 3px; }
+.heatmap-pillar-toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 60px;
+    user-select: none;
+}
+.heatmap-pillar-toggle:hover { color: var(--text); }
+.heatmap-pillar-toggle::before { content: "▸"; font-size: 9px; }
+.heatmap-pillar.open .heatmap-pillar-toggle::before { content: "▾"; }
+.heatmap-pillar-toggle.is-empty { cursor: default; pointer-events: none; }
+.heatmap-pillar-toggle.is-empty::before { content: " "; }
+.heatmap-habit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 60px;
+}
+.heatmap-habit-name {
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.heatmap-habit-cells { display: flex; gap: 2px; flex: 1; }
 @media (max-width: 720px) {
     .heatmap-cell { width: 10px; height: 10px; }
     .heatmap-label { min-width: 40px; font-size: 10px; }
