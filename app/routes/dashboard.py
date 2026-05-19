@@ -99,6 +99,7 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
                 "is_weekend": wd >= 5,
                 "is_monday": wd == 0,
                 "is_month_start": prev_month is not None and d.month != prev_month,
+                "is_viewed": d_iso == target_date,
                 "day_of_month": d.day,
             })
             prev_month = d.month

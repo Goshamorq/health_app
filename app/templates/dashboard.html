@@ -83,7 +83,7 @@
                 <div class="heatmap-dates">
                     {% for m in heatmap_date_meta %}
                     {% if m.is_month_start %}<span class="heatmap-month-divider"></span>{% endif %}
-                    <span class="heatmap-date-cell">{% if m.is_monday %}{{ m.day_of_month }}{% endif %}</span>
+                    <span class="heatmap-date-cell{% if m.is_viewed %} is-viewed{% endif %}">{{ m.day_of_month }}</span>
                     {% endfor %}
                 </div>
             </div>

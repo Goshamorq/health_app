@@ -659,10 +659,15 @@ fieldset legend {
     width: 14px;
     flex-shrink: 0;
     text-align: center;
-    font-size: 9px;
+    font-size: 8px;
     line-height: 1;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
+    font-weight: 400;
+}
+.heatmap-date-cell.is-viewed {
+    color: var(--text);
+    font-weight: 700;
 }
 .heatmap-row {
     display: flex;
@@ -711,8 +716,10 @@ fieldset legend {
 .heatmap-cell.pillar-other.level-2 { background: rgb(var(--pillar-other) / 0.75); }
 .heatmap-cell.pillar-other.level-3 { background: rgb(var(--pillar-other) / 1.00); }
 .heatmap-cell.is-viewed {
-    outline: 1px solid var(--text);
-    outline-offset: 1px;
+    /* Rounded muted contour, no fill — distinct from weekend stripe. */
+    outline: 1.5px solid var(--muted);
+    outline-offset: 2px;
+    border-radius: 4px;
     z-index: 1;
 }
 
