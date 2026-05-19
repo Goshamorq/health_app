@@ -30,7 +30,7 @@
             <span class="muted">activated {{ g.activated_at }}</span>
         </div>
         {% if g.reward %}<p class="goal-reward"><span class="goal-label">Reward:</span> {{ g.reward }}</p>{% endif %}
-        {% if g.punishment %}<p class="goal-punishment"><span class="goal-label">Punishment:</span> {{ g.punishment }}</p>{% endif %}
+        {% if g.punishment %}<p class="goal-punishment"><span class="goal-label">Price of the word:</span> {{ g.punishment }}</p>{% endif %}
 
         {% if g.is_overdue %}
         <div class="goal-overdue-banner">

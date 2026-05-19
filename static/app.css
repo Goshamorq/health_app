@@ -927,7 +927,11 @@ fieldset legend {
     text-decoration: none;
 }
 .goal-banner-name:hover { color: var(--accent); }
-.goal-banner-deadline { font-size: 13px; }
+.goal-banner-detail {
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+}
 .goal-banner-action { margin: 0; }
 .goal-banner-action button { padding: 8px 18px; }
 

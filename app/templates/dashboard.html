@@ -11,7 +11,9 @@
         <div class="goal-banner-meta">
             <span class="label-eyebrow">Active goal</span>
             <a href="/journal/goals" class="goal-banner-name">{{ active_goal.name }}</a>
-            <span class="goal-banner-deadline muted">deadline {{ active_goal.deadline }}</span>
+            <span class="goal-banner-detail muted">deadline {{ active_goal.deadline }}</span>
+            {% if active_goal.reward %}<span class="goal-banner-detail muted">reward: {{ active_goal.reward }}</span>{% endif %}
+            {% if active_goal.punishment %}<span class="goal-banner-detail muted">price of the word: {{ active_goal.punishment }}</span>{% endif %}
         </div>
         <form method="post" action="/journal/goals/{{ active_goal.id }}/complete" class="goal-banner-action">
             <input type="hidden" name="back" value="/">

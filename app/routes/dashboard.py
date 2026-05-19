@@ -58,7 +58,8 @@ def dashboard(request: Request, date: str | None = None) -> HTMLResponse:
         # Streaks are always "as of now", regardless of which day the dashboard views
         streaks = streaks_for_active_habits(conn, today_iso, settings)
         active_goal_row = conn.execute(
-            "SELECT id, name, deadline FROM goals WHERE status = 'active' LIMIT 1"
+            "SELECT id, name, deadline, reward, punishment "
+            "FROM goals WHERE status = 'active' LIMIT 1"
         ).fetchone()
         active_goal = dict(active_goal_row) if active_goal_row else None
         has_target_checkin = conn.execute(
