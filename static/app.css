@@ -708,6 +708,35 @@ fieldset legend {
     color: var(--muted);
 }
 
+/* === Weekly review === */
+.weekly-header { margin-bottom: 4px; }
+.weekly-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+.weekly-stats .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+}
+.weekly-stats .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.weekly-stats .stat-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
 /* === Trigger journal === */
 .trigger-form { display: flex; flex-direction: column; gap: 12px; }
 .trigger-list {

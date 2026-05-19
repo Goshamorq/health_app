@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Week of {{ monday }} — health_app{% endblock %}
+
+{% block content %}
+<header class="weekly-header">
+    <div class="date-nav">
+        <a href="/weekly?week={{ prev_week }}" class="nav-arrow" title="Previous week">←</a>
+        <h1>Week of {{ monday }} – {{ sunday }}{% if is_current %} <span class="muted">(this week)</span>{% endif %}</h1>
+        {% if not is_current %}
+        <a href="/weekly?week={{ next_week }}" class="nav-arrow" title="Next week">→</a>
+        <a href="/weekly" class="muted">This week</a>
+        {% endif %}
+    </div>
+</header>
+
+{% if saved %}
+<section class="block" style="border-left: 3px solid var(--accent); margin-top: 16px;">
+    <p>Notes saved.</p>
+</section>
+{% endif %}
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Overview</h2>
+    <div class="weekly-stats">
+        <div class="stat">
+            <span class="stat-label">Score avg</span>
+            <span class="stat-value">{{ score_avg }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Good days (≥67)</span>
+            <span class="stat-value">{{ good_days }}/7</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Checked in</span>
+            <span class="stat-value">{{ checkin_days }}/7</span>
+        </div>
+    </div>
+</section>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Sleep & mood</h2>
+    <div class="weekly-stats">
+        <div class="stat">
+            <span class="stat-label">Sleep h avg</span>
+            <span class="stat-value">{% if avg_sleep is not none %}{{ avg_sleep }}{% else %}—{% endif %}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Mood AM avg</span>
+            <span class="stat-value">{% if avg_mood_am is not none %}{{ avg_mood_am }}{% else %}—{% endif %}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Mood PM avg</span>
+            <span class="stat-value">{% if avg_mood_pm is not none %}{{ avg_mood_pm }}{% else %}—{% endif %}</span>
+        </div>
+    </div>
+</section>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Food signals</h2>
+    <div class="weekly-stats">
+        <div class="stat">
+            <span class="stat-label">Meals avg</span>
+            <span class="stat-value">{% if avg_meals is not none %}{{ avg_meals }}{% else %}—{% endif %}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Caffeine days</span>
+            <span class="stat-value">{{ caffeine_days }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Alcohol days</span>
+            <span class="stat-value">{{ alcohol_days }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Late meal days</span>
+            <span class="stat-value">{{ late_meal_days }}</span>
+        </div>
+    </div>
+</section>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Trigger entries</h2>
+    <p>{{ trigger_count }} this week. <a href="/trigger" style="color: var(--accent); text-decoration: none;">View →</a></p>
+</section>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Notes for next week</h2>
+    <form method="post" action="/weekly">
+        <input type="hidden" name="week_start_date" value="{{ monday }}">
+        <label class="field">
+            <textarea name="notes_text" rows="6"
+                      placeholder="What worked? What to try? What patterns showed up?">{{ notes }}</textarea>
+        </label>
+        <button type="submit" class="primary" style="margin-top: 12px;">Save notes</button>
+    </form>
+</section>
+{% endblock %}
