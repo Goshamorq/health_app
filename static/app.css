@@ -624,10 +624,19 @@ fieldset legend {
     z-index: 0;
 }
 .heatmap-bg-col {
+    position: relative;
     width: 14px;
     flex-shrink: 0;
 }
-.heatmap-bg-col.is-weekend { background: rgb(100 116 139 / 0.14); }
+/* Weekend stripe rendered via pseudo so it can extend ±2px past the column
+   without affecting flex layout or the is-viewed outline that lives on the
+   bg-col itself. */
+.heatmap-bg-col.is-weekend::before {
+    content: "";
+    position: absolute;
+    inset: 0 -2px;
+    background: rgb(100 116 139 / 0.14);
+}
 /* Active (viewed) column: one big rounded contour spanning the full
    heatmap height — dates strip, every pillar row, and every open
    drilldown row. Drawn OUTSIDE the column so it doesn't crop the
