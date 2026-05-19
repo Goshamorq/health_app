@@ -7,15 +7,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
-from app.scoring import is_done, parse_habit_input
+from app.scoring import ALL_PILLARS, STEPS_BUCKETS, WATER_BUCKETS, is_done, parse_habit_input
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
 router = APIRouter()
 
-PILLARS = ("sleep", "sport", "food", "other")
-WATER_BUCKETS = ("<1", "1-1.5", "1.5-2", "2+")
-STEPS_BUCKETS = ("<5k", "5-7k", "7-10k", "10-15k", "15k+")
+PILLARS = ALL_PILLARS
 RATING_VALUES = (1, 2, 3, 4, 5)
 
 

@@ -271,8 +271,7 @@ fieldset legend {
     border-color: var(--accent);
 }
 
-/* === Checkboxes (flags) === */
-.flags { gap: 20px; }
+/* === Checkbox label (used in settings for streak toggle) === */
 .flag {
     display: inline-flex;
     align-items: center;
@@ -598,11 +597,6 @@ fieldset legend {
     outline-offset: 2px;
 }
 
-.placeholder-card {
-    color: var(--muted);
-    font-style: italic;
-}
-
 .heatmap {
     position: relative;
     display: flex;
@@ -691,13 +685,6 @@ fieldset legend {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-.heatmap-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--muted);
-    min-width: 48px;
 }
 .heatmap-cells {
     display: flex;

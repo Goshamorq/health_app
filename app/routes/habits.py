@@ -6,14 +6,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
-from app.scoring import STEPS_BUCKETS, WATER_BUCKETS
+from app.scoring import ALL_PILLARS, STEPS_BUCKETS, WATER_BUCKETS
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
 
 router = APIRouter()
 
-PILLARS = ("sleep", "sport", "food", "other")
+PILLARS = ALL_PILLARS
 HABIT_TYPES = ("binary", "time", "quantity")
 
 

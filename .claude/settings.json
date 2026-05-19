@@ -6,7 +6,10 @@
       "Bash(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8765__TRACKED_VAR__)",
       "Bash(curl -s http://127.0.0.1:8765/weekly)",
       "Bash(.venv/bin/python -c \"from datetime import date; print\\(date.today\\(\\).isoformat\\(\\)\\)\")",
-      "Bash(curl -s -X POST --data-urlencode date=__TRACKED_VAR__ --data-urlencode sleep_hours=8 --data-urlencode water_bucket=2+ --data-urlencode meals_count=3 http://127.0.0.1:8765/checkin -o /dev/null -w 'STATUS=%{http_code}\\\\n')"
+      "Bash(curl -s -X POST --data-urlencode date=__TRACKED_VAR__ --data-urlencode sleep_hours=8 --data-urlencode water_bucket=2+ --data-urlencode meals_count=3 http://127.0.0.1:8765/checkin -o /dev/null -w 'STATUS=%{http_code}\\\\n')",
+      "Bash(awk '{print $2}')",
+      "Bash(grep -c '\\\\.__TRACKED_VAR__\\\\b' static/app.css)",
+      "Bash(grep -rc 'class=\"[^\"]*\\\\b__TRACKED_VAR__\\\\b' app/templates/)"
     ]
   }
 }
