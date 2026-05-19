@@ -25,6 +25,11 @@
 <form method="post" action="/checkin" class="checkin-form">
     <input type="hidden" name="date" value="{{ target_date }}">
 
+    <div class="save-bar">
+        <span class="save-bar-label muted">Check-in for {{ target_date }}{% if is_today %} (today){% endif %}</span>
+        <button type="submit" class="primary">Save</button>
+    </div>
+
     <section class="block">
         <h2>Sleep</h2>
         <div class="row">

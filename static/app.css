@@ -361,6 +361,27 @@ fieldset legend {
     font-weight: 500;
 }
 
+.save-bar {
+    position: sticky;
+    top: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+.save-bar-label { font-size: 13px; }
+.save-bar button.primary { padding: 8px 18px; }
+@media (max-width: 720px) {
+    .save-bar { top: 4px; padding: 8px 12px; }
+    .save-bar-label { display: none; }
+}
+
 /* === Habits page === */
 .habit-form {
     display: flex;
