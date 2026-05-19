@@ -1,0 +1,36 @@
+{% if notes %}
+<ul class="note-list">
+    {% for n in notes %}
+    <li class="note-row" x-data="{editing: false}">
+        <div class="note-row-view" x-show="!editing">
+            <span class="note-date">{{ n.date }}</span>
+            <p class="note-text">{{ n.note_text }}</p>
+            <div class="note-actions">
+                <button type="button" class="note-edit" aria-label="Edit note"
+                        @click="editing = true">✎</button>
+                <button type="button" class="note-clear" aria-label="Clear note"
+                        hx-post="/journal/notes/{{ n.date }}/clear"
+                        hx-target="#notes-list"
+                        hx-swap="innerHTML"
+                        hx-confirm="Clear note for {{ n.date }}? The check-in stays.">×</button>
+            </div>
+        </div>
+        <form class="note-edit-form" x-show="editing" x-cloak
+              hx-post="/journal/notes/{{ n.date }}/edit"
+              hx-target="#notes-list"
+              hx-swap="innerHTML">
+            <div class="note-edit-meta">
+                <span class="note-date">{{ n.date }}</span>
+            </div>
+            <textarea name="note_text" rows="4" required>{{ n.note_text }}</textarea>
+            <div class="note-edit-actions">
+                <button type="submit" class="primary">Save</button>
+                <button type="button" class="btn-ghost" @click="editing = false">Cancel</button>
+            </div>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="muted" style="margin-top: 8px;">No daily notes yet. Add one via the check-in form.</p>
+{% endif %}

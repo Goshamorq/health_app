@@ -305,6 +305,64 @@ def triggers_delete(request: Request, entry_id: int) -> HTMLResponse:
     return _trigger_list_response(request, entries)
 
 
+# ---------- Daily notes (from /checkin's note_text) ----------
+
+def _load_notes(conn, limit: int = 90) -> list[dict]:
+    rows = conn.execute(
+        "SELECT date, note_text FROM checkins "
+        "WHERE note_text IS NOT NULL AND TRIM(note_text) != '' "
+        "ORDER BY date DESC LIMIT ?",
+        (limit,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+@router.get("/journal/notes", response_class=HTMLResponse)
+def notes_get(request: Request) -> HTMLResponse:
+    with connect() as conn:
+        notes = _load_notes(conn)
+    return templates.TemplateResponse(request, "journal_notes.html", {
+        "active_tab": "notes",
+        "notes": notes,
+    })
+
+
+def _notes_list_response(request: Request, notes: list[dict]) -> HTMLResponse:
+    return templates.TemplateResponse(request, "_notes_list.html", {"notes": notes})
+
+
+@router.post("/journal/notes/{note_date}/edit", response_class=HTMLResponse)
+async def notes_edit(request: Request, note_date: str,
+                      note_text: str = Form(...)) -> HTMLResponse:
+    _validate_date(note_date)
+    txt = note_text.strip()
+    if not txt:
+        raise HTTPException(400, "note_text cannot be empty — use Clear instead")
+    with connect() as conn:
+        cur = conn.execute(
+            "UPDATE checkins SET note_text = ? WHERE date = ?",
+            (txt, note_date),
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(404, "no check-in for that date")
+        notes = _load_notes(conn)
+    return _notes_list_response(request, notes)
+
+
+@router.post("/journal/notes/{note_date}/clear", response_class=HTMLResponse)
+def notes_clear(request: Request, note_date: str) -> HTMLResponse:
+    _validate_date(note_date)
+    with connect() as conn:
+        cur = conn.execute(
+            "UPDATE checkins SET note_text = NULL WHERE date = ?",
+            (note_date,),
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(404, "no check-in for that date")
+        notes = _load_notes(conn)
+    return _notes_list_response(request, notes)
+
+
 # ---------- Backward compat: redirect old /trigger to /journal/triggers ----------
 
 @router.get("/trigger")

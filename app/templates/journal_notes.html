@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Journal · Notes — I help myself{% endblock %}
+
+{% block content %}
+<h1>Journal</h1>
+{% include "_journal_tabs.html" %}
+
+<p class="muted">Free-form daily notes from your check-ins. Edit here to refine — the changes save back to that day's check-in.</p>
+
+<section class="block" style="margin-top: 16px;">
+    <h2>Notes</h2>
+    <div id="notes-list">
+        {% include "_notes_list.html" %}
+    </div>
+</section>
+{% endblock %}
