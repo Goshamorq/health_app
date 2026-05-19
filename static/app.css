@@ -628,6 +628,13 @@ fieldset legend {
     flex-shrink: 0;
 }
 .heatmap-bg-col.is-weekend { background: rgb(100 116 139 / 0.14); }
+/* Active (viewed) column: one big rounded contour spanning the full
+   heatmap height — dates strip, every pillar row, and every open
+   drilldown row. */
+.heatmap-bg-col.is-viewed {
+    box-shadow: inset 0 0 0 1.5px var(--muted);
+    border-radius: 6px;
+}
 .heatmap-bg .heatmap-month-divider {
     width: 1px;
     background: var(--muted);
@@ -715,13 +722,10 @@ fieldset legend {
 .heatmap-cell.pillar-other.level-1 { background: rgb(var(--pillar-other) / 0.45); }
 .heatmap-cell.pillar-other.level-2 { background: rgb(var(--pillar-other) / 0.75); }
 .heatmap-cell.pillar-other.level-3 { background: rgb(var(--pillar-other) / 1.00); }
-.heatmap-cell.is-viewed {
-    /* Rounded muted contour, no fill — distinct from weekend stripe. */
-    outline: 1.5px solid var(--muted);
-    outline-offset: 2px;
-    border-radius: 4px;
-    z-index: 1;
-}
+/* Active-day cells get a subtle scale bump; the column-spanning rounded
+   contour on .heatmap-bg-col.is-viewed is the main highlight. */
+.heatmap-cell.is-viewed { transform: scale(1.1); z-index: 2; }
+.heatmap-cell.is-habit.is-viewed { transform: scale(0.85); z-index: 2; }
 
 /* Habit-row cells: layout box stays 14×14 (so columns align with the pillar
    row), but the visual block is shrunk to ~10×10 via transform: scale. */

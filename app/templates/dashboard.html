@@ -74,7 +74,7 @@
             <div class="heatmap-bg" aria-hidden="true">
                 {% for m in heatmap_date_meta %}
                 {% if m.is_month_start %}<span class="heatmap-month-divider"></span>{% endif %}
-                <span class="heatmap-bg-col{% if m.is_weekend %} is-weekend{% endif %}"></span>
+                <span class="heatmap-bg-col{% if m.is_weekend %} is-weekend{% endif %}{% if m.is_viewed %} is-viewed{% endif %}"></span>
                 {% endfor %}
             </div>
 
