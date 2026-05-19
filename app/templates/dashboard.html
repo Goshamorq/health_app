@@ -89,7 +89,9 @@
             </div>
 
             {% for row in heatmap_rows %}
-            <div class="heatmap-pillar" x-data="{open: false}">
+            <div class="heatmap-pillar"
+                 x-data="{ open: localStorage.getItem('hm-pillar-{{ row.pillar }}') === '1' }"
+                 x-effect="localStorage.setItem('hm-pillar-{{ row.pillar }}', open ? '1' : '0')">
                 <div class="heatmap-row">
                     {% if row.habits %}
                     <button type="button" class="heatmap-pillar-toggle" @click="open = !open">

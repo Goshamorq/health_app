@@ -723,10 +723,10 @@ fieldset legend {
     transform-origin: center;
 }
 .heatmap-cell.is-habit:hover { transform: scale(1.1); }
-.heatmap-cell.is-habit.pillar-sleep.done { background: rgb(var(--pillar-sleep) / 0.30); }
-.heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.30); }
-.heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.30); }
-.heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.30); }
+.heatmap-cell.is-habit.pillar-sleep.done { background: rgb(var(--pillar-sleep) / 0.55); }
+.heatmap-cell.is-habit.pillar-sport.done { background: rgb(var(--pillar-sport) / 0.55); }
+.heatmap-cell.is-habit.pillar-food.done  { background: rgb(var(--pillar-food)  / 0.55); }
+.heatmap-cell.is-habit.pillar-other.done { background: rgb(var(--pillar-other) / 0.55); }
 .heatmap-cell.is-habit.miss { background: rgb(100 116 139 / 0.10); }
 
 .heatmap-pillar { display: flex; flex-direction: column; gap: 3px; }
