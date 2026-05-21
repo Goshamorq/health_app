@@ -85,7 +85,11 @@
     </section>
 
     <section class="block" x-data="heatmapPillars()">
-        <span class="label-eyebrow">30-day heatmap</span>
+        <div class="heatmap-header">
+            <span class="label-eyebrow">30-day heatmap</span>
+            <button type="button" class="btn-ghost" @click="toggleAll()"
+                    x-text="anyOpen ? 'Collapse all' : 'Expand all'">Expand all</button>
+        </div>
         <div class="heatmap">
             <div class="heatmap-bg" aria-hidden="true">
                 {% for m in heatmap_date_meta %}
@@ -144,10 +148,6 @@
             {% endfor %}
         </div>
 
-        <div class="heatmap-footer">
-            <button type="button" class="heatmap-toggle-all" @click="toggleAll()"
-                    x-text="anyOpen ? 'Collapse all' : 'Expand all'">Expand all</button>
-        </div>
     </section>
 
     <script>

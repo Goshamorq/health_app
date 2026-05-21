@@ -794,27 +794,14 @@ fieldset legend {
 }
 .heatmap-habit-cells { display: flex; gap: 2px; flex: 1; }
 
-.heatmap-footer {
+.heatmap-header {
     display: flex;
-    justify-content: center;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px dashed var(--border);
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
 }
-.heatmap-toggle-all {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--muted);
-    font-size: 12px;
-    padding: 4px 14px;
-    cursor: pointer;
-    transition: background 120ms ease, color 120ms ease;
-}
-.heatmap-toggle-all:hover {
-    background: var(--surface-2);
-    color: var(--text);
-}
+.heatmap-header .btn-ghost { padding: 4px 12px; font-size: 12px; }
 @media (max-width: 720px) {
     .heatmap-cell { width: 10px; height: 10px; }
     .heatmap-label { min-width: 40px; font-size: 10px; }
