@@ -11,7 +11,13 @@
       "Bash(grep -c '\\\\.__TRACKED_VAR__\\\\b' static/app.css)",
       "Bash(grep -rc 'class=\"[^\"]*\\\\b__TRACKED_VAR__\\\\b' app/templates/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8765/checkin)",
-      "Bash(curl -s \"http://127.0.0.1:8765/checkin?date=2026-05-15\")"
+      "Bash(curl -s \"http://127.0.0.1:8765/checkin?date=2026-05-15\")",
+      "WebFetch(domain:material.io)",
+      "WebFetch(domain:polaris.shopify.com)",
+      "WebFetch(domain:tailwindui.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:m3.material.io)",
+      "WebFetch(domain:polaris-react.shopify.com)"
     ]
   }
 }
